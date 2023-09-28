@@ -1,0 +1,5 @@
+- The user is able to select a type of fish to add
+- The user is able to name the fish to add
+- The user is able to add the newly created fish to the aquarium
+- The added fish swims around the aquarium
+- The user is able to feed the fish in the aquarium
