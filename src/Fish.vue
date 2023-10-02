@@ -1,64 +1,93 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
 
 const props = defineProps({
     type: String,
     name: String,
     id: Number,
     alive: Boolean,
-    lifetime: Number,
+    lifetime: Number,//miliseconds
+    birthtime: Number,//miliseconds
     aquariumHeight: Number,
     aquariumWidth: Number
 });
 
-const emit = defineEmits(['dead', 'clear']);
+const emit = defineEmits(['feed', 'dead', 'clear']);
 
 const lifetimeCountdown = ref(0);
 const lifetimeTimeout = ref({});
 const lifetimeInterval = ref({});
 const swimTimeout = ref({});
 const swimSpeed = ref('');
-const swimDirection = ref('');
+const swimDirection = ref([]);
 
+const lifetimeWarning = computed(() => {
+    return (props.lifetime * 30) / 100;
+})
 const fishStyle = computed(() => {
-    return { 
-        backgroundImage: props.lifetime ? (props.alive ? `url('/${props.type}.png')` : `url('/dead.png')`) : `url('/${props.type}.png')`,
+    return {
         transitionDuration: swimSpeed.value,
-        transform: swimDirection.value ? `translate(${swimDirection.value})` : ''
+        transform: swimDirection.value[0] ? `translate(${swimDirection.value[0]}px, ${swimDirection.value[1]}px)` : ''
+    }
+})
+const fishImageSource = computed(() => {
+    return props.lifetime ? (props.alive ? `/${props.type}.png` : `/dead.png`) : `/${props.type}.png`;
+})
+const fishImageStyle = computed(() => {
+    return {
+        transform: swimDirection.value[0] < 0 ? `scaleX(-1)` : ''
     }
 })
 const fishLifetimeBarStyle = computed(() => {
     return {
-        backgroundColor: lifetimeCountdown.value > 3000 ? 'lime' : 'red',
+        backgroundColor: lifetimeCountdown.value > lifetimeWarning.value ? 'lime' : 'red',
         width: (lifetimeCountdown.value * 100) / props.lifetime + '%',
         height: '100%'
     }
 })
 const showFeedMe = computed(() => {
-    return lifetimeCountdown.value < 3000 && props.alive && props.lifetime
+    return lifetimeCountdown.value < lifetimeWarning.value && props.alive && props.lifetime;
 })
 
 const xSwimDistance = computed(() => { return (props.aquariumWidth / 2) - 100; });
 const ySwimDistance = computed(() => { return (props.aquariumHeight / 2) - 100; });
 
 onMounted(() => {
-  if(props.lifetime){
-    lifetimeCountdown.value = props.lifetime;
+    if(props.alive){
+        if(props.lifetime){
+            let remainLifetime = props.birthtime ? (props.birthtime + props.lifetime) - Date.now() : props.lifetime;
 
-    begineLifetimeCountdown();
+            if(remainLifetime > 0) {
+                lifetimeCountdown.value = remainLifetime;
 
-    lifetimeInterval.value = setInterval(() => {
-        lifetimeCountdown.value -= 100;
-    }, 100);
+                begineLifetimeCountdown(remainLifetime);
 
-    setTimeout(() => {
-        beginSwim();
-    }, 500);
-  }
+                lifetimeInterval.value = setInterval(() => {
+                    lifetimeCountdown.value -= 500;
+                }, 500);
+
+                setTimeout(() => {
+                    beginSwim();
+                }, 500);
+            } else {
+                emit('dead', props.id);
+                beginSwim(true);
+            }
+        }
+    } else {
+        beginSwim(true);
+    }
+})
+
+onBeforeUnmount(() => {
+    clearTimeout(lifetimeTimeout.value);
+    clearTimeout(swimTimeout.value);
+    clearInterval(lifetimeInterval.value);
 })
 
 function tapFish(){
     if(props.alive){
+        emit('feed', props.id);
         lifetimeCountdown.value = props.lifetime;
 
         clearTimeout(lifetimeTimeout.value);
@@ -68,12 +97,12 @@ function tapFish(){
     }
 }
 
-function begineLifetimeCountdown(){
+function begineLifetimeCountdown(remainLifetime){
     lifetimeTimeout.value = setTimeout(() => {
         emit('dead', props.id);
         clearInterval(lifetimeInterval.value);
         beginSwim(true);
-    }, props.lifetime);
+    }, remainLifetime ? remainLifetime : props.lifetime);
 }
 
 function beginSwim(up){
@@ -81,7 +110,7 @@ function beginSwim(up){
         xCoor = getRandomNumber(-xSwimDistance.value, xSwimDistance.value),
         yCoor = up ? (-ySwimDistance.value - 100) : getRandomNumber(-ySwimDistance.value, ySwimDistance.value);
     swimSpeed.value = `${duration}ms`;
-    swimDirection.value = `${xCoor}px, ${yCoor}px`;
+    swimDirection.value = [xCoor, yCoor];
 
     clearTimeout(swimTimeout.value);
     if(!up){
@@ -99,6 +128,7 @@ function getRandomNumber(min, max){
 
 <template>
     <div class="fish" :style="fishStyle" @click="tapFish">
+        <img class="fish-img" :src="fishImageSource" :style="fishImageStyle">
         <div v-if="name" class="fish-name rounded text-lg p-2">{{ name }}</div>
         <div v-if="lifetime" class="fish-lifetime rounded">
             <div class="bar" :style="fishLifetimeBarStyle"></div>
@@ -109,17 +139,19 @@ function getRandomNumber(min, max){
 
 <style scoped>
 .fish{
-    width: 100px;
-    height: 60px;
-    background-size: contain;
-    background-repeat: no-repeat;
     position: relative;
     cursor: pointer;
     transition-property: transform;
     transition-duration: 10000ms;
 }
+.fish-img {
+    width: 100px;
+    height: 60px;
+    transition-property: all;
+    transition-duration: 1000ms;
+}
 .fish-name {
-    background-color: rgba(255,255,255,0.5);
+    background-color: rgba(255,255,255,0.7);
     position: absolute;
     bottom: -40px;
     width: 100%;

@@ -6,12 +6,13 @@ const fishTypes = ['golden-purple-fish', 'goldfish', 'guppie', 'tropical-fish', 
 
 const fishTypeModel = ref('');
 const fishNameModel = ref('');
+const miniumLifetimeModel = ref(30);
 
-const emit = defineEmits(['addFish']);
+const emit = defineEmits(['addFish', 'resetAquarium']);
 
 function addFish(){
     if(fishTypeModel.value && fishNameModel.value)
-    emit('addFish', fishTypeModel.value, fishNameModel.value);
+    emit('addFish', fishTypeModel.value, fishNameModel.value, Number(miniumLifetimeModel.value));
     fishTypeModel.value = '';
     fishNameModel.value = '';
 }
@@ -28,7 +29,10 @@ function addFish(){
         </div>
         <h3 class="text-white font-bold text-xl">Fish name</h3>
         <input type="text" class="rounded text-2xl p-3" v-model="fishNameModel">
-        <button type="button" class="text-2xl rounded bg-red-500 p-5 text-white" @click="addFish">Add fish</button>
+        <h4 class="text-white font-bold text-lg">Minium lifetime (seconds)</h4>
+        <input type="number" class="rounded text-xl p-2" v-model="miniumLifetimeModel">
+        <button type="button" class="text-2xl rounded bg-blue-500 p-5 text-white" @click="addFish">Add fish ＋</button>
+        <button type="button" class="text-xl rounded bg-red-500 p-3 text-white" @click="$emit('resetAquarium')">Reset aquarium 🗙</button>
     </div>
 </template>
 <style scoped>

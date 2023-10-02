@@ -13,10 +13,14 @@ const aquariumWidth = computed(() => { return aquarium.value.clientWidth; });
 
 const emit = defineEmits(['deadFish', 'clearFish']);
 
+
+function feedHandler(id) {
+    emit('feedFish', id);
+}
 function deadHandler(id) {
     emit('deadFish', id);
 }
-function clearHandler(id){
+function clearHandler(id) {
     emit('clearFish', id);
 }
 </script>
@@ -24,7 +28,8 @@ function clearHandler(id){
 <template>
     <div class="aquarium" ref="aquarium">
         <Fish v-for="fish in fishes" :key="fish.id" :type="fish.type" :name="fish.name" :id="fish.id" :alive="fish.alive"
-            :lifetime="fish.lifetime" :aquarium-height="aquariumHeight" :aquarium-width="aquariumWidth" @dead="deadHandler" @clear="clearHandler"></Fish>
+            :lifetime="fish.lifetime" :birthtime="fish.birthtime" :aquarium-height="aquariumHeight"
+            :aquarium-width="aquariumWidth" @feed="feedHandler" @dead="deadHandler" @clear="clearHandler"></Fish>
     </div>
 </template>
 
