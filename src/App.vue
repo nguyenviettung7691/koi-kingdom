@@ -6,6 +6,15 @@ import { ref, watch, onMounted } from 'vue';
 const idSeed = ref(0);
 const fishes = ref([]);
 
+const fishLifeCycles = [
+    { name: 'fry', miniumLifetime: 90, size: 0.3 },
+    { name: 'fingerling', miniumLifetime: 800, size: 0.7 },
+    { name: 'juvenile', miniumLifetime: 7000, size: 1 },
+    { name: 'smolt', miniumLifetime: 60000, size: 2 },
+    { name: 'adult', miniumLifetime: 500000, size: 3 },
+    { name: 'spawning', miniumLifetime: 4000000, size: 3.3 }
+];
+
 onMounted(() => {
     if(localStorage) {
         const fishes_ls = JSON.parse(localStorage.getItem("fishes") || '[]');
@@ -30,15 +39,15 @@ watch(idSeed, (newIdSeed) => {
 function addFishHandler(type, name, miniumLifetime){
     let id = Number(idSeed.value),
         alive = true,
-        lifetime = (Math.random() * 10 ) + (miniumLifetime * 1000),
+        lifetime = miniumLifetime * 1000,
         birthtime = Date.now();
 
-    fishes.value.push({ type, name, id, alive, lifetime, birthtime });
+    fishes.value.push({ type, name, id, alive, lifetime, birthtime, feedtime: birthtime });
     idSeed.value++;
 }
 
 function feedFishHandler(id){
-    fishes.value.find((f) => f.id == id).birthtime = Date.now();
+    fishes.value.find((f) => f.id == id).feedtime = Date.now();
 }
 function deadFishHandler(id){
     fishes.value.find((f) => f.id == id).alive = false;
@@ -54,8 +63,8 @@ function resetAquariumHandler(){
 }
 </script>
 <template>
-<div class="flex h-full">
-    <FishForm @add-fish="addFishHandler" @reset-aquarium="resetAquariumHandler"></FishForm>
-    <Aquarium :fishes="fishes" @feed-fish="feedFishHandler" @dead-fish="deadFishHandler" @clear-fish="clearFishHandler"></Aquarium>
+<div class="flex h-full max-md:flex-col-reverse">
+    <FishForm :fish-life-cycles="fishLifeCycles" @add-fish="addFishHandler" @reset-aquarium="resetAquariumHandler"></FishForm>
+    <Aquarium :fishes="fishes" :fish-life-cycles="fishLifeCycles" @feed-fish="feedFishHandler" @dead-fish="deadFishHandler" @clear-fish="clearFishHandler"></Aquarium>
 </div>
 </template>

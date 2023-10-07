@@ -3,7 +3,8 @@ import { computed, ref } from 'vue';
 import Fish from './Fish.vue';
 
 defineProps({
-    fishes: Array
+    fishes: Array,
+    fishLifeCycles: Array
 });
 
 const aquarium = ref(null);
@@ -28,8 +29,9 @@ function clearHandler(id) {
 <template>
     <div class="aquarium" ref="aquarium">
         <Fish v-for="fish in fishes" :key="fish.id" :type="fish.type" :name="fish.name" :id="fish.id" :alive="fish.alive"
-            :lifetime="fish.lifetime" :birthtime="fish.birthtime" :aquarium-height="aquariumHeight"
-            :aquarium-width="aquariumWidth" @feed="feedHandler" @dead="deadHandler" @clear="clearHandler"></Fish>
+            :lifetime="fish.lifetime" :birthtime="fish.birthtime" :feedtime="fish.feedtime" :fish-life-cycles="fishLifeCycles"
+            :aquarium-height="aquariumHeight" :aquarium-width="aquariumWidth" @feed="feedHandler" @dead="deadHandler"
+            @clear="clearHandler"></Fish>
     </div>
 </template>
 
@@ -38,6 +40,7 @@ function clearHandler(id) {
     background: url('/bg.jpg');
     flex-basis: 75%;
     position: relative;
+    background-size: cover;
 }
 
 .aquarium .fish {
