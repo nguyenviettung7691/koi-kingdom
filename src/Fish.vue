@@ -27,7 +27,7 @@ const swimSpeed = ref('');
 const swimDirection = ref([]);
 
 const currentLifecycle = computed(() => {
-    if (props.fishLifeCycles) {
+    if (props.fishLifeCycles && props.alive) {
         for (let i = 0; i < props.fishLifeCycles.length; i++) {
             let lifecycle = props.fishLifeCycles[i];
             if (lifetimeCountup.value <= lifecycle.miniumLifetime) {
@@ -48,7 +48,7 @@ const fishStyle = computed(() => {
     }
 })
 const fishImageSource = computed(() => {
-    return lifetimeCountdown.value ? (props.alive ? `/${props.type}.png` : `/dead.png`) : `/${props.type}.png`;
+    return props.lifetime ? (props.alive ? `/${props.type}.png` : `/dead.png`) : `/${props.type}.png`;
 })
 const fishImageStyle = computed(() => {
     return {

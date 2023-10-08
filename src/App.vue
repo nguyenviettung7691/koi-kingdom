@@ -13,10 +13,10 @@ const feedBagStreak = ref(0);
 const fishLifeCycles = [
     { name: 'fry', miniumLifetime: 90, size: 0.3 },
     { name: 'fingerling', miniumLifetime: 800, size: 0.7 },
-    { name: 'juvenile', miniumLifetime: 7000, size: 1 },
-    { name: 'smolt', miniumLifetime: 60000, size: 2 },
-    { name: 'adult', miniumLifetime: 500000, size: 3 },
-    { name: 'spawning', miniumLifetime: 4000000, size: 3.3 }
+    { name: 'juvenile', miniumLifetime: 7000, size: 1.2 },
+    { name: 'smolt', miniumLifetime: 60000, size: 1.8 },
+    { name: 'adult', miniumLifetime: 500000, size: 2.5 },
+    { name: 'spawning', miniumLifetime: 4000000, size: 3 }
 ];
 
 onMounted(() => {
