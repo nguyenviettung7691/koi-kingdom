@@ -38,6 +38,7 @@ const setLifecycle = (lifecycle) => {
 </script>
 <template>
     <form class="fish-form bg-cyan-800 max-md:h-5 overflow-y-scroll" @submit.prevent="addFish">
+        <div class="text-2xl">Fish Form</div>
         <div>
             <h3 class="text-white font-bold text-xl">Fish type</h3>
             <div class="max-md:h-24 max-md:whitespace-nowrap overflow-x-auto overflow-y-hidden">
@@ -66,24 +67,6 @@ const setLifecycle = (lifecycle) => {
         </div>
         <div>
             <button type="submit" class="text-2xl rounded bg-blue-500 p-5 text-white">Add fish ＋</button>
-        </div>
-        <div class="bg-white text-black p-2">
-            <div class="text-xl">How to play:</div>
-            <div>🐟 To add a fish: select a basic fish type, name the fish, and select the maximum lifetime of the fish. The fish will die if you don't feed it after the fish's maximum lifetime has passed.</div>
-            <div>🐟 Tap on the fish to feed it. Each feed will increase 6000 seconds of lifetime. You can't feed the fish beyond its maximum lifetime.</div>
-            <div>🐟 You have a feed bag that contains a finite number of fish feed. Every 6 hours since the last time you feed you will get 1 fish feed.</div>
-            <div>🐟 The fish will grow in size after entering a new lifecycle stage based on its total lifetime:
-                <ul>
-                    <li v-for="(lc, index) in fishLifeCycles" :key="lc.name">{{ lc.name }} (⭐x{{ index }}): {{ lc.miniumLifetime }} sec</li>
-                </ul>
-            </div>
-            <div>🐟 The fish will display its information including: name, remaining lifetime (as healthbar), lifecycle stage (as stars), and maximum lifetime (as number of seconds).</div>
-            <div>🐡 If the fish died, click on it to remove from the aquarium.</div>
-            <div>🐡 You can reset the whole aquarium (if you're heartless enough)</div>
-            <div>🐡 The more dead fishes you have in the aquarium, the more chance other fishes will die because of contamination.</div>
-            <div>🐠 When the number of times a fish is fed reached a certain threshold, it may evolve into a new type of fish!</div>
-            <div>🐠 The more spawning fishes you have in the aquarium, the more chance a new special type of fish will join the aquarium!</div>
-            <div>🐠 Even better: the shorter lifetime those fishes have, the more chance you may have a mythical fish join the aquarium!</div>
         </div>
     </form>
 </template>
