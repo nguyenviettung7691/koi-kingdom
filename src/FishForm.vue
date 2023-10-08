@@ -13,7 +13,7 @@ const fishTypeModel = ref('');
 const fishNameModel = ref('');
 const maximumLifetimeModel = ref(30);
 
-const emit = defineEmits(['addFish', 'resetAquarium']);
+const emit = defineEmits(['addFish']);
 
 function addFish(e) {
     const form = e.target;
@@ -66,21 +66,21 @@ const setLifecycle = (lifecycle) => {
         </div>
         <div>
             <button type="submit" class="text-2xl rounded bg-blue-500 p-5 text-white">Add fish ＋</button>
-            <button type="button" class="text-xl rounded bg-red-500 p-3 text-white" @click="$emit('resetAquarium')">Reset
-                aquarium 🗙</button>
         </div>
         <div class="bg-white text-black p-2">
             <div class="text-xl">How to play:</div>
             <div>🐟 To add a fish: select a basic fish type, name the fish, and select the maximum lifetime of the fish. The fish will die if you don't feed it after the fish's maximum lifetime has passed.</div>
-            <div>🐟 Tap on the fish to feed it. Each tap will increase 6000 seconds of lifetime. You can't feed the fish beyond its maximum lifetime.</div>
+            <div>🐟 Tap on the fish to feed it. Each feed will increase 6000 seconds of lifetime. You can't feed the fish beyond its maximum lifetime.</div>
+            <div>🐟 You have a feed bag that contains a finite number of fish feed. Every 6 hours since the last time you feed you will get 1 fish feed.</div>
             <div>🐟 The fish will grow in size after entering a new lifecycle stage based on its total lifetime:
                 <ul>
-                    <li v-for="lc in fishLifeCycles" :key="lc.name">{{ lc.name }}: {{ lc.miniumLifetime }} seconds of total lifetime</li>
+                    <li v-for="(lc, index) in fishLifeCycles" :key="lc.name">{{ lc.name }} (⭐x{{ index }}): {{ lc.miniumLifetime }} sec</li>
                 </ul>
             </div>
-            <div>🐟 The fish will display its information including: name, remaining lifetime (as healthbar) and lifecycle stage (as stars).</div>
+            <div>🐟 The fish will display its information including: name, remaining lifetime (as healthbar), lifecycle stage (as stars), and maximum lifetime (as number of seconds).</div>
             <div>🐡 If the fish died, click on it to remove from the aquarium.</div>
             <div>🐡 You can reset the whole aquarium (if you're heartless enough)</div>
+            <div>🐡 The more dead fishes you have in the aquarium, the more chance other fishes will die because of contamination.</div>
             <div>🐠 When the number of times a fish is fed reached a certain threshold, it may evolve into a new type of fish!</div>
             <div>🐠 The more spawning fishes you have in the aquarium, the more chance a new special type of fish will join the aquarium!</div>
             <div>🐠 Even better: the shorter lifetime those fishes have, the more chance you may have a mythical fish join the aquarium!</div>

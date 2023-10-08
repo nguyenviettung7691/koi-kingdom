@@ -7,14 +7,16 @@ const props = defineProps({
     id: Number,
     alive: Boolean,
     lifetime: Number,//miliseconds
+    remainLifetime: Number,//miliseconds
     birthtime: Number,//miliseconds
     feedtime: Number,//miliseconds
     fishLifeCycles: Array,
+    feedBag: Number,
     aquariumHeight: Number,
     aquariumWidth: Number
 });
 
-const emit = defineEmits(['feed', 'dead', 'clear']);
+const emit = defineEmits(['feed', 'countdown', 'dead', 'clear']);
 
 const lifetimeCountup = ref(0);
 const lifetimeCountdown = ref(0);
@@ -46,7 +48,7 @@ const fishStyle = computed(() => {
     }
 })
 const fishImageSource = computed(() => {
-    return props.lifetime ? (props.alive ? `/${props.type}.png` : `/dead.png`) : `/${props.type}.png`;
+    return lifetimeCountdown.value ? (props.alive ? `/${props.type}.png` : `/dead.png`) : `/${props.type}.png`;
 })
 const fishImageStyle = computed(() => {
     return {
@@ -70,17 +72,17 @@ const ySwimDistance = computed(() => { return (props.aquariumHeight / 2) - 100; 
 onMounted(() => {
     if (props.alive) {
         if (props.lifetime) {
-            let remainLifetime = props.feedtime ? (props.feedtime + props.lifetime) - Date.now() : props.lifetime;
-
-            if (remainLifetime > 0) {
-                lifetimeCountdown.value = remainLifetime;
+            if (props.remainLifetime > 0) {
+                lifetimeCountdown.value = props.remainLifetime;
                 lifetimeCountup.value = (Date.now() - props.birthtime) / 1000;
 
-                begineLifetimeCountdown(remainLifetime);
+                begineLifetimeCountdown(lifetimeCountdown.value);
 
                 lifetimeInterval.value = setInterval(() => {
                     lifetimeCountdown.value -= 500;
                     lifetimeCountup.value += 0.5;
+
+                    emit('countdown', props.id, lifetimeCountdown.value);
                 }, 500);
 
                 setTimeout(() => {
@@ -104,13 +106,15 @@ onBeforeUnmount(() => {
 
 function tapFish() {
     if (props.alive) {
-        emit('feed', props.id);
+        if(props.feedBag) {
+            const newRemainingLifetime = lifetimeCountdown.value + (6000 * 1000);
+            lifetimeCountdown.value = Math.min(newRemainingLifetime, props.lifetime);
 
-        const newRemainingLifetime = lifetimeCountdown.value + (6000 * 1000);
-        lifetimeCountdown.value = Math.min(newRemainingLifetime, props.lifetime);
+            emit('feed', props.id, lifetimeCountdown.value);
 
-        clearTimeout(lifetimeTimeout.value);
-        begineLifetimeCountdown();
+            clearTimeout(lifetimeTimeout.value);
+            begineLifetimeCountdown();
+        }
     } else {
         emit('clear', props.id);
     }
@@ -125,7 +129,7 @@ function begineLifetimeCountdown(remainLifetime) {
 }
 
 function beginSwim(up) {
-    let duration = (Math.random() + 10) * 1000,
+    let duration = getRandomNumber(5, 15) * 1000,
         xCoor = getRandomNumber(-xSwimDistance.value, xSwimDistance.value),
         yCoor = up ? (-ySwimDistance.value - 100) : getRandomNumber(-ySwimDistance.value, ySwimDistance.value);
     swimSpeed.value = `${duration}ms`;
@@ -148,12 +152,13 @@ function getRandomNumber(min, max) {
 <template>
     <div class="fish" :style="fishStyle" @click="tapFish">
         <img class="fish-img" :src="fishImageSource" :style="fishImageStyle">
-        <div v-if="currentLifecycle" class="fish-lifecycle text-xs">
+        <div v-if="currentLifecycle" class="fish-lifecycle text-xs relative">
             <span v-for="s in currentLifecycle.stars">⭐</span>
         </div>
         <div v-if="name" class="fish-name rounded text-lg p-2">{{ name }}</div>
-        <div v-if="lifetime" class="fish-lifetime rounded">
+        <div v-if="lifetime && alive" class="fish-lifetime rounded">
             <div class="bar" :style="fishLifetimeBarStyle"></div>
+            <div class="lifetime">{{ lifetime / 1000 }}</div>
         </div>
         <div v-show="showFeedMe" class="fish-feed-me rounded text-base font-bold p-2 text-red-500">FEED ME!</div>
     </div>
@@ -178,6 +183,7 @@ function getRandomNumber(min, max) {
     position: absolute;
     bottom: -40px;
     width: 100%;
+    white-space: nowrap;
 }
 
 .fish-lifetime {
@@ -185,10 +191,21 @@ function getRandomNumber(min, max) {
     width: 100%;
     position: absolute;
     bottom: -50px;
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+.fish-lifetime .lifetime {
+    position: absolute;
+    top: 0; right: 0;
+    font-size: 10px;
+    line-height: 10px;
+    font-weight: bold;
 }
 
 .fish-feed-me {
-    background-color: rgba(255, 255, 255, 0.7);
+    background-color: rgba(255, 0, 0, 0.7);
+    color: white;
     position: absolute;
     top: -40px;
+    white-space: nowrap;
 }</style>
