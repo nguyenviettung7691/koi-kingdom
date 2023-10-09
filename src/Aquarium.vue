@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import Fish from './Fish.vue';
+import { useTimestampToString } from './composable/date.js';
 
 const props = defineProps({
     fishes: Array,
@@ -14,24 +15,7 @@ const aquarium = ref(null);
 
 const aquariumHeight = computed(() => { return aquarium.value.clientHeight; });
 const aquariumWidth = computed(() => { return aquarium.value.clientWidth; });
-const lastFeed = computed(() => {
-    if(!props.feedTimeLatest) return 'Never';
-    // Create a Date object from the timestamp
-    const date = new Date(props.feedTimeLatest);
-
-    // Get individual date components
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1; // Months are zero-based
-    const day = date.getDate();
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const seconds = date.getSeconds();
-
-    // Format the date components into a human-readable string
-    const formattedTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-
-    return formattedTime;
- });
+const lastFeed = computed(() => { return useTimestampToString(props.feedTimeLatest).string });
 
 const emit = defineEmits(['feedFish', 'countdownFish', 'deadFish', 'clearFish', 'updateFeedBag', 'resetAquarium']);
 

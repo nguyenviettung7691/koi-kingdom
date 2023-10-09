@@ -1,5 +1,5 @@
 <script setup>
-import Fish from './Fish.vue';
+import Fish from '../Fish.vue';
 import { ref, watch } from 'vue';
 
 const fishTypes = ['golden-purple-fish', 'goldfish', 'guppie', 'tropical-fish', 'tuna', 'orange', 'koi', 'clown', 'blue', 'royal-angelfish'];

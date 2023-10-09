@@ -1,8 +1,8 @@
 <script setup>
 import Aquarium from './Aquarium.vue';
-import FishForm from './FishForm.vue';
-import FishList from './FishList.vue';
-import HowToPlay from './HowToPlay.vue';
+import FishForm from './views/FishForm.vue';
+import FishList from './views/FishList.vue';
+import HowToPlay from './views/HowToPlay.vue';
 import { ref, watch, computed, onMounted } from 'vue';
 import { initFlowbite } from 'flowbite';
 
