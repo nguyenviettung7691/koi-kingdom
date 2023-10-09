@@ -19,10 +19,20 @@ const fishLifeCycles = [
     { name: 'fry', miniumLifetime: 90, size: 0.3 },
     { name: 'fingerling', miniumLifetime: 800, size: 0.7 },
     { name: 'juvenile', miniumLifetime: 7000, size: 1.2 },
-    { name: 'smolt', miniumLifetime: 60000, size: 1.8 },
-    { name: 'adult', miniumLifetime: 500000, size: 2.5 },
-    { name: 'spawning', miniumLifetime: 4000000, size: 3 }
+    { name: 'smolt', miniumLifetime: 50000, size: 1.8 },
+    { name: 'adult', miniumLifetime: 400000, size: 2.5 },
+    { name: 'spawning', miniumLifetime: 2000000, size: 3 }
 ];
+const maximumLifetime = {
+    min: 90, //seconds
+    max: 2000000 //seconds
+}
+const feedConfig = {
+    increaseAmount: 6000, //seconds
+    replenishInterval: 6 * 60 * 60 * 1000, //ms
+    replenishAmount: 1
+}
+
 const routes = {
   '/': FishForm,
   '/form': FishForm,
@@ -65,7 +75,6 @@ watch(feedTimeLatest, (newFeedTime) => {
     if (localStorage) {
         localStorage.setItem("feedTimeLatest", newFeedTime);
     }
-    feedBagStreak.value = 0;
 })
 watch(feedBagStreak, (newFeedBagStreak) => {
     if (localStorage) {
@@ -91,13 +100,15 @@ function initFromLocalStorage() {
 }
 
 function replenishFeedBag() {
-    const millisecondsPerDay = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
-    const timeDifference = Date.now() - feedTimeLatest.value;
-    const daysDifference = Math.floor(timeDifference / millisecondsPerDay);
-    const feedBagReplenish = daysDifference - feedBagStreak.value;
-    if (feedBagReplenish > 0) {
-        updateFeedBagHandler(feedBag.value + feedBagReplenish);
-        feedBagStreak.value = feedBagReplenish;
+    if(feedTimeLatest.value) {
+        const replenishInterval = feedConfig.replenishInterval;
+        const noFeedTime = Date.now() - feedTimeLatest.value;
+        const timeDifference = Math.floor(noFeedTime / replenishInterval);
+        const feedBagReplenish = (timeDifference - feedBagStreak.value) * feedConfig.replenishAmount;
+        if (feedBagReplenish > 0) {
+            updateFeedBagHandler(feedBag.value + feedBagReplenish);
+            feedBagStreak.value = feedBagReplenish;
+        }
     }
 }
 
@@ -150,6 +161,7 @@ function feedFishHandler(id, countdown) {
     fish.feedtime = Date.now();
 
     feedTimeLatest.value = Date.now();
+    feedBagStreak.value = 0;
 }
 function updateFeedBagHandler(count) {
     feedBag.value = count < 1 ? 0 : count;
@@ -171,6 +183,7 @@ function resetAquariumHandler() {
     idSeed.value = 0;
     feedBag.value = 5;
     feedTimeLatest.value = 0;
+    feedBagStreak.value = 0;
 }
 </script>
 <template>
@@ -191,7 +204,7 @@ function resetAquariumHandler() {
                     <li>
                         <a href="#/"
                             class="block py-2 pl-3 pr-4 text-white bg-blue-700 rounded md:bg-transparent md:p-0"
-                            aria-current="page">Fish Form</a>
+                            aria-current="page">Add Fish</a>
                     </li>
                     <li>
                         <a href="#/list"
@@ -208,8 +221,8 @@ function resetAquariumHandler() {
         </div>
     </nav>
     <div class="flex h-full max-md:flex-col-reverse">
-        <component :is="currentView" :fish-life-cycles="fishLifeCycles" @add-fish="addFishHandler" />
-        <Aquarium :fishes="fishes" :fish-life-cycles="fishLifeCycles" :feed-bag="feedBag" :feed-time-latest="feedTimeLatest"
+        <component :is="currentView" :fishes="fishes" :fish-life-cycles="fishLifeCycles" :maximum-lifetime="maximumLifetime" :feed-config="feedConfig" @add-fish="addFishHandler" />
+        <Aquarium :fishes="fishes" :fish-life-cycles="fishLifeCycles" :feed-bag="feedBag" :feed-time-latest="feedTimeLatest" :feed-config="feedConfig"
             @feed-fish="feedFishHandler" @countdown-fish="countdownFishHandler" @dead-fish="deadFishHandler"
             @clear-fish="clearFishHandler" @update-feed-bag="updateFeedBagHandler" @reset-aquarium="resetAquariumHandler">
         </Aquarium>

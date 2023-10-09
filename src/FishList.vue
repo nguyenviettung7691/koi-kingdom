@@ -1,18 +1,22 @@
 <script setup>
 
 const props = defineProps({
-    fishLifeCycles: Array
+    fishes: Array
 });
 
 </script>
 <template>
-    <div class="fish-list bg-white text-black p-2 bg-white text-black p-2 bg-cyan-800 max-md:h-5 overflow-y-scroll">
+    <div class="fish-list-container bg-white text-black p-2 bg-white text-black p-2 bg-cyan-800 max-md:h-5 overflow-y-scroll">
             <div class="text-xl">Fish List</div>
-            
+            <div class="fish-list">
+                <div v-for="f in fishes" :key="f.id">
+                    {{ f.name }}
+                </div>
+            </div>
         </div>
 </template>
 <style scoped>
-.fish-list {
+.fish-list-container {
     display: flex;
     flex-direction: column;
     flex-basis: 25%;

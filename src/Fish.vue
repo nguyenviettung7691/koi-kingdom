@@ -10,8 +10,9 @@ const props = defineProps({
     remainLifetime: Number,//miliseconds
     birthtime: Number,//miliseconds
     feedtime: Number,//miliseconds
-    fishLifeCycles: Array,
     feedBag: Number,
+    feedConfig: Object,
+    fishLifeCycles: Array,
     aquariumHeight: Number,
     aquariumWidth: Number
 });
@@ -107,7 +108,7 @@ onBeforeUnmount(() => {
 function tapFish() {
     if (props.alive) {
         if(props.feedBag) {
-            const newRemainingLifetime = lifetimeCountdown.value + (6000 * 1000);
+            const newRemainingLifetime = lifetimeCountdown.value + (props.feedConfig.increaseAmount * 1000);
             lifetimeCountdown.value = Math.min(newRemainingLifetime, props.lifetime);
 
             emit('feed', props.id, lifetimeCountdown.value);

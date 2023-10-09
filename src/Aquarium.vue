@@ -6,7 +6,8 @@ const props = defineProps({
     fishes: Array,
     fishLifeCycles: Array,
     feedBag: Number,
-    feedTimeLatest: Number
+    feedTimeLatest: Number,
+    feedConfig: Object
 });
 
 const aquarium = ref(null);
@@ -54,7 +55,7 @@ function clearHandler(id) {
     <div class="aquarium" ref="aquarium">
         <Fish v-for="fish in fishes" :key="fish.id" :type="fish.type" :name="fish.name" :id="fish.id" :alive="fish.alive"
             :lifetime="fish.lifetime" :remain-lifetime="fish.remainLifetime" :birthtime="fish.birthtime" :feedtime="fish.feedtime"
-            :fish-life-cycles="fishLifeCycles" :feed-bag="feedBag" :aquarium-height="aquariumHeight" :aquarium-width="aquariumWidth"
+            :feed-bag="feedBag" :feed-config="feedConfig" :fish-life-cycles="fishLifeCycles" :aquarium-height="aquariumHeight" :aquarium-width="aquariumWidth"
             @feed="feedHandler" @countdown="countdownHandler" @dead="deadHandler" @clear="clearHandler"></Fish>
         <div class="commands">
             <button type="button" class="text-lg rounded bg-red-500 p-2 text-white" data-modal-target="reset-aquarium-modal" data-modal-toggle="reset-aquarium-modal">Reset aquarium 🗙</button>
