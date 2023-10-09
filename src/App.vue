@@ -1,5 +1,6 @@
 <script setup>
 import Aquarium from './Aquarium.vue';
+import Toast from './Toast.vue';
 import FishForm from './views/FishForm.vue';
 import FishList from './views/FishList.vue';
 import HowToPlay from './views/HowToPlay.vue';
@@ -17,11 +18,11 @@ const currentPath = ref(window.location.hash)
 
 const fishLifeCycles = [
     { name: 'fry', miniumLifetime: 90, size: 0.3 },
-    { name: 'fingerling', miniumLifetime: 800, size: 0.7 },
-    { name: 'juvenile', miniumLifetime: 7000, size: 1.2 },
-    { name: 'smolt', miniumLifetime: 50000, size: 1.8 },
-    { name: 'adult', miniumLifetime: 400000, size: 2.5 },
-    { name: 'spawning', miniumLifetime: 2000000, size: 3 }
+    { name: 'fingerling', miniumLifetime: 800, size: 0.5 },
+    { name: 'juvenile', miniumLifetime: 7000, size: 0.8 },
+    { name: 'smolt', miniumLifetime: 50000, size: 1.2 },
+    { name: 'adult', miniumLifetime: 400000, size: 1.5 },
+    { name: 'spawning', miniumLifetime: 2000000, size: 1.7 }
 ];
 const maximumLifetime = {
     min: 90, //seconds
@@ -39,10 +40,6 @@ const routes = {
   '/list': FishList,
   '/howto': HowToPlay
 }
-
-const currentView = computed(() => {
-  return routes[currentPath.value.slice(1) || '/']
-})
 
 onMounted(() => {
     initFlowbite();
@@ -80,6 +77,10 @@ watch(feedBagStreak, (newFeedBagStreak) => {
     if (localStorage) {
         localStorage.setItem("feedBagStreak", newFeedBagStreak);
     }
+})
+
+const currentView = computed(() => {
+  return routes[currentPath.value.slice(1) || '/']
 })
 
 window.addEventListener('hashchange', () => {
@@ -226,32 +227,6 @@ function resetAquariumHandler() {
             @feed-fish="feedFishHandler" @countdown-fish="countdownFishHandler" @dead-fish="deadFishHandler"
             @clear-fish="clearFishHandler" @update-feed-bag="updateFeedBagHandler" @reset-aquarium="resetAquariumHandler">
         </Aquarium>
-        <div class="absolute right-0 top-0">
-            <div v-if="fishDied" id="toast-died-fish"
-                class="flex items-center w-full max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800"
-                role="alert">
-                <div
-                    class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-orange-500 bg-orange-100 rounded-lg dark:bg-orange-700 dark:text-orange-200">
-                    <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
-                        viewBox="0 0 20 20">
-                        <path
-                            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM10 15a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm1-4a1 1 0 0 1-2 0V6a1 1 0 0 1 2 0v5Z" />
-                    </svg>
-                    <span class="sr-only">Warning icon</span>
-                </div>
-                <div class="ml-3 text-sm font-normal">A fish has died because of contamination from other dead fishes in the
-                    aquarium. Try to remove all dead fishes from the aquarium as soon as possible.</div>
-                <button type="button"
-                    class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"
-                    data-dismiss-target="#toast-died-fish" aria-label="Close">
-                    <span class="sr-only">Close</span>
-                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 14 14">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                    </svg>
-                </button>
-            </div>
-        </div>
+        <Toast :fish-died="fishDied"></Toast>
     </div>
 </template>

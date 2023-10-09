@@ -1,11 +1,14 @@
 <script setup>
-import { useTimestampToString } from '../composable/date.js';
+import { useFishCurrentLifecycle, useFishTotalLifetime } from '../composable/fish.js';
+import { useTimeAgo, useDateFormat } from '@vueuse/core';
+import { ClockIcon, CalendarIcon } from '@heroicons/vue/24/solid';
 
 const props = defineProps({
-    fishes: Array
+    fishes: Array,
+    fishLifeCycles: Array
 });
 
-const cellClass = "px-2 py-1";
+const cellClass = "px-2 py-1 whitespace-nowrap";
 
 function getRowClass(index){
     return index % 2 == 0 ? 'bg-white border-b dark:bg-gray-800 dark:border-gray-700' : 'border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700';
@@ -13,6 +16,15 @@ function getRowClass(index){
 
 function mstoHour(ms){
     return Math.round(ms / 1000 / 60 / 60);
+}
+
+function getLifetimePercent(remainLifetime, lifetime) {
+    return (remainLifetime * 100) / lifetime;
+}
+
+function getLifecycle(f){
+    let totalLifetime = useFishTotalLifetime(f.birthtime).totalLifetime;
+    return useFishCurrentLifecycle(f.alive, totalLifetime, props.fishLifeCycles).lifecycle;
 }
 
 </script>
@@ -56,27 +68,43 @@ function mstoHour(ms){
                             {{ f.name }}
                         </td>
                         <td :class="cellClass">
-                            <span>{{ f.type }}</span>
-                            <img class="w-5" :src="`/${f.type}.png`" :alt="f.type">
-                        </td>
-                        <td :class="cellClass">
-                            <div class="flex items-center">
-                                <template v-if="f.alive">
-                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div> Alive
-                                </template>
-                                <template v-else>
-                                    <div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2"></div> Dead
-                                </template>
+                            <div class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                                <img class="w-5 mr-1 inline-block" :src="`/${f.type}.png`" :alt="f.type">
+                                <span>{{ f.type }}</span>
                             </div>
                         </td>
                         <td :class="cellClass">
-                            {{ useTimestampToString(f.birthtime).string }}
+                            <div class="flex items-center mb-1">
+                                <div v-if="f.alive" class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-gray-900 dark:text-gray-300">
+                                    <span class="text-xs" v-for="s in getLifecycle(f).stars">⭐</span>
+                                    <span class="ml-1">{{ getLifecycle(f).name }}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <div v-if="f.alive" class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">Alive</div>
+                                <div v-else class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">Dead</div>
+                            </div>
                         </td>
                         <td :class="cellClass">
-                            {{ mstoHour(f.remainLifetime) }} hours / {{ mstoHour(f.lifetime) }} hours
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400">
+                                <CalendarIcon class="w-3 h-3 mr-1.5" />
+                                {{ useDateFormat(f.birthtime, 'DD-MM-YYYY HH:mm:ss') }}
+                            </span>
                         </td>
                         <td :class="cellClass">
-                            {{ useTimestampToString(f.feedtime).string }}
+                            <div class="flex justify-between">
+                                <span class="text-sm font-medium text-blue-700 dark:text-white">{{ mstoHour(f.remainLifetime) }} hours</span>
+                                <span class="text-sm font-medium text-blue-700 dark:text-white">{{ mstoHour(f.lifetime) }} hours</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                <div class="bg-blue-600 h-2.5 rounded-full" :style="`width: ${getLifetimePercent(f.remainLifetime, f.lifetime)}%`"></div>
+                            </div>
+                        </td>
+                        <td :class="cellClass">
+                            <div class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400">
+                                <ClockIcon class="w-3 h-3 mr-1.5" />
+                                {{ useTimeAgo(f.feedtime) }}
+                            </div>
                         </td>
                     </tr>
                 </tbody>

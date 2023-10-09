@@ -1,7 +1,8 @@
 <script setup>
 import { computed, ref } from 'vue';
 import Fish from './Fish.vue';
-import { useTimestampToString } from './composable/date.js';
+import { useTimeAgo } from '@vueuse/core';
+import { ClockIcon } from '@heroicons/vue/24/solid';
 
 const props = defineProps({
     fishes: Array,
@@ -15,7 +16,7 @@ const aquarium = ref(null);
 
 const aquariumHeight = computed(() => { return aquarium.value.clientHeight; });
 const aquariumWidth = computed(() => { return aquarium.value.clientWidth; });
-const lastFeed = computed(() => { return useTimestampToString(props.feedTimeLatest).string });
+const lastFeed = computed(() => { return useTimeAgo(props.feedTimeLatest); });
 
 const emit = defineEmits(['feedFish', 'countdownFish', 'deadFish', 'clearFish', 'updateFeedBag', 'resetAquarium']);
 
@@ -45,8 +46,17 @@ function clearHandler(id) {
             <button type="button" class="text-lg rounded bg-red-500 p-2 text-white" data-modal-target="reset-aquarium-modal" data-modal-toggle="reset-aquarium-modal">Reset aquarium 🗙</button>
         </div>
         <div class="feed-bag">
-            <div>Feed bag<span v-if="feedBag > 59"> (full)</span>: 🍥 x {{ feedBag }}</div>
-            <div>Last feed at: {{ lastFeed }}</div>
+            <div>Feed bag: 
+                <span class="bg-red-100 text-red-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-red-400 border border-red-400">
+                    🍥 x {{ feedBag }}
+                </span>
+            </div>
+            <div>Last feed at: 
+                <span class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400">
+                    <ClockIcon class="w-3 h-3 mr-1.5" />
+                    {{ lastFeed }}
+                </span>
+            </div>
         </div>
     </div>
     <div id="reset-aquarium-modal" tabindex="-1" class="fixed top-0 left-0 right-0 z-50 hidden p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">

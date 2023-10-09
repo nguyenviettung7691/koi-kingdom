@@ -1,6 +1,10 @@
 {
-  "name": "challenge-1",
-  "version": "0.0.0",
+  "name": "aquarium",
+  "version": "0.2.0",
+  "author": {
+    "name": "Harry",
+    "url": "https://github.com/nguyenviettung7691"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -11,6 +15,7 @@
   "dependencies": {
     "@heroicons/vue": "^2.0.18",
     "@tailwindcss/typography": "^0.5.9",
+    "@vueuse/core": "^10.5.0",
     "flowbite": "^1.8.1",
     "happy-dom": "^10.8.0",
     "vue": "^3.3.4"
