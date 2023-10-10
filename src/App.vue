@@ -152,13 +152,14 @@ function addFishHandler(type, name, miniumLifetime) {
         lifetime = miniumLifetime * 1000,
         birthtime = Date.now();
 
-    fishes.value.push({ type, name, id, alive, lifetime, birthtime, remainLifetime: lifetime, feedtime: birthtime });
+    fishes.value.push({ type, name, id, alive, lifetime, birthtime, remainLifetime: lifetime, feedtime: birthtime, remainLifetimeWhenFed: lifetime });
     idSeed.value++;
 }
 
 function feedFishHandler(id, countdown) {
     let fish = fishes.value.find((f) => f.id == id);
     fish.remainLifetime = countdown;
+    fish.remainLifetimeWhenFed = countdown;
     fish.feedtime = Date.now();
 
     feedTimeLatest.value = Date.now();
@@ -204,17 +205,17 @@ function resetAquariumHandler() {
                     class="font-medium flex flex-col p-4 md:p-0 mt-4 rounded-lg md:flex-row md:space-x-8 md:mt-0">
                     <li>
                         <a href="#/"
-                            class="block py-2 pl-3 pr-4 text-white bg-blue-700 rounded md:bg-transparent md:p-0"
+                            class="block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600 hover:text-gray-700"
                             aria-current="page">Add Fish</a>
                     </li>
                     <li>
                         <a href="#/list"
-                            class="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Fish
+                            class="block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600 hover:text-gray-700">Fish
                             List</a>
                     </li>
                     <li>
                         <a href="#/howto"
-                            class="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">How
+                            class="block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600 hover:text-gray-700">How
                             to play</a>
                     </li>
                 </ul>
@@ -230,3 +231,9 @@ function resetAquariumHandler() {
         <Toast :fish-died="fishDied"></Toast>
     </div>
 </template>
+
+<style scoped>
+nav {
+    text-transform: uppercase;
+}
+</style>

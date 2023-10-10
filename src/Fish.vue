@@ -10,6 +10,7 @@ const props = defineProps({
     remainLifetime: Number,//miliseconds
     birthtime: Number,//miliseconds
     feedtime: Number,//miliseconds
+    remainLifetimeWhenFed: Number,//miliseconds
     feedBag: Number,
     feedConfig: Object,
     fishLifeCycles: Array,
@@ -73,8 +74,11 @@ const ySwimDistance = computed(() => { return (props.aquariumHeight / 2) - 100; 
 onMounted(() => {
     if (props.alive) {
         if (props.lifetime) {
-            if (props.remainLifetime > 0) {
-                lifetimeCountdown.value = props.remainLifetime;
+            let passedTime = Date.now() - props.feedtime;
+            let remainingLifetime = props.remainLifetimeWhenFed - passedTime;
+
+            if (remainingLifetime > 0) {
+                lifetimeCountdown.value = remainingLifetime;
                 lifetimeCountup.value = (Date.now() - props.birthtime) / 1000;
 
                 begineLifetimeCountdown(lifetimeCountdown.value);

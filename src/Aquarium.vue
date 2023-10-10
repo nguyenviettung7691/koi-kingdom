@@ -16,7 +16,7 @@ const aquarium = ref(null);
 
 const aquariumHeight = computed(() => { return aquarium.value.clientHeight; });
 const aquariumWidth = computed(() => { return aquarium.value.clientWidth; });
-const lastFeed = computed(() => { return useTimeAgo(props.feedTimeLatest); });
+const lastFeed = computed(() => { return props.feedTimeLatest ? useTimeAgo(props.feedTimeLatest) : 'Never' });
 
 const emit = defineEmits(['feedFish', 'countdownFish', 'deadFish', 'clearFish', 'updateFeedBag', 'resetAquarium']);
 
@@ -39,11 +39,11 @@ function clearHandler(id) {
 <template>
     <div class="aquarium" ref="aquarium">
         <Fish v-for="fish in fishes" :key="fish.id" :type="fish.type" :name="fish.name" :id="fish.id" :alive="fish.alive"
-            :lifetime="fish.lifetime" :remain-lifetime="fish.remainLifetime" :birthtime="fish.birthtime" :feedtime="fish.feedtime"
+            :lifetime="fish.lifetime" :remain-lifetime="fish.remainLifetime" :birthtime="fish.birthtime" :feedtime="fish.feedtime" :remain-lifetime-when-fed="fish.remainLifetimeWhenFed"
             :feed-bag="feedBag" :feed-config="feedConfig" :fish-life-cycles="fishLifeCycles" :aquarium-height="aquariumHeight" :aquarium-width="aquariumWidth"
             @feed="feedHandler" @countdown="countdownHandler" @dead="deadHandler" @clear="clearHandler"></Fish>
         <div class="commands">
-            <button type="button" class="text-lg rounded bg-red-500 p-2 text-white" data-modal-target="reset-aquarium-modal" data-modal-toggle="reset-aquarium-modal">Reset aquarium 🗙</button>
+            <button type="button" class="text-sm rounded bg-red-500 p-1 text-white" data-modal-target="reset-aquarium-modal" data-modal-toggle="reset-aquarium-modal">Reset aquarium 🗙</button>
         </div>
         <div class="feed-bag">
             <div>Feed bag: 
