@@ -1,9 +1,9 @@
 <script setup>
+import fishNames from '../json/fishNames.json';
 import Fish from '../Fish.vue';
 import { ref, watch } from 'vue';
 
 const fishTypes = ['golden-purple-fish', 'goldfish', 'guppie', 'tropical-fish', 'tuna', 'orange', 'koi', 'clown', 'blue', 'royal-angelfish'];
-const fishNames = ["Nemo", "Dory", "Bubbles", "Finny", "Splash", "Flounder", "Ariel", "Sebastian"];
 
 const props = defineProps({
     fishLifeCycles: Array,
