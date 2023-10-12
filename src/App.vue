@@ -1,6 +1,5 @@
 <script setup>
 import Aquarium from './Aquarium.vue';
-import Toast from './Toast.vue';
 import FishForm from './views/FishForm.vue';
 import FishList from './views/FishList.vue';
 import HowToPlay from './views/HowToPlay.vue';
@@ -13,7 +12,8 @@ const feedBag = ref(5);
 const feedTimeLatest = ref(0);
 const feedBagStreak = ref(0);
 
-const fishDied = ref(false);
+const toasts = ref([]);
+
 const currentPath = ref(window.location.hash)
 
 const fishLifeCycles = [
@@ -35,10 +35,10 @@ const feedConfig = {
 }
 
 const routes = {
-  '/': FishForm,
-  '/form': FishForm,
-  '/list': FishList,
-  '/howto': HowToPlay
+    '/': FishForm,
+    '/form': FishForm,
+    '/list': FishList,
+    '/howto': HowToPlay
 }
 
 onMounted(() => {
@@ -80,11 +80,11 @@ watch(feedBagStreak, (newFeedBagStreak) => {
 })
 
 const currentView = computed(() => {
-  return routes[currentPath.value.slice(1) || '/']
+    return routes[currentPath.value.slice(1) || '/']
 })
 
 window.addEventListener('hashchange', () => {
-  currentPath.value = window.location.hash
+    currentPath.value = window.location.hash
 })
 
 function initFromLocalStorage() {
@@ -101,7 +101,7 @@ function initFromLocalStorage() {
 }
 
 function replenishFeedBag() {
-    if(feedTimeLatest.value) {
+    if (feedTimeLatest.value) {
         const replenishInterval = feedConfig.replenishInterval;
         const noFeedTime = Date.now() - feedTimeLatest.value;
         const timeDifference = Math.floor(noFeedTime / replenishInterval);
@@ -142,7 +142,12 @@ function runRNG() {
         (Date.now() - feedTimeLatest.value) / (1000 * 60 * 60)
     )) {
         fishes.value[Math.floor(Math.random() * fishes.value.length)].alive = false;
-        fishDied.value = true;
+
+        toasts.value.push({
+            id: 'toast-died-fish',
+            message: 'A fish has died because of contamination from other dead fishes in the aquarium. Try to remove all dead fishes from the aquarium as soon as possible.',
+            type: 'warning'
+        })
     }
 }
 
@@ -154,6 +159,14 @@ function addFishHandler(type, name, miniumLifetime) {
 
     fishes.value.push({ type, name, id, alive, lifetime, birthtime, remainLifetime: lifetime, feedtime: birthtime, remainLifetimeWhenFed: lifetime });
     idSeed.value++;
+}
+
+function formValidationErrorHandler(e){
+    toasts.value.push({
+        id: 'toast-form-validation',
+        message: 'Please select a type of fish, input a name, and input a maximum lifetime.',
+        type: 'error'
+    })
 }
 
 function feedFishHandler(id, countdown) {
@@ -180,6 +193,16 @@ function clearFishHandler(id) {
     fishes.value.splice(fishes.value.indexOf(fishes.value.find((f) => f.id == id)), 1);
 }
 
+function getToastClass(type) {
+    return ['flex items-center w-full max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 border-l-4',
+        { 'border-orange-500': type == 'warning' },
+        { 'border-red-500': type == 'error' }
+    ];
+}
+function getToastIcon(type) {
+    return type == 'warning' ? '⚠' : '❌';
+}
+
 function resetAquariumHandler() {
     fishes.value = [];
     idSeed.value = 0;
@@ -201,11 +224,9 @@ function resetAquariumHandler() {
                 </svg>
             </button>
             <div class="hidden w-full md:block md:w-auto" id="navbar-default">
-                <ul
-                    class="font-medium flex flex-col p-4 md:p-0 mt-4 rounded-lg md:flex-row md:space-x-8 md:mt-0">
+                <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 rounded-lg md:flex-row md:space-x-8 md:mt-0">
                     <li>
-                        <a href="#/"
-                            class="block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600 hover:text-gray-700"
+                        <a href="#/" class="block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600 hover:text-gray-700"
                             aria-current="page">Add Fish</a>
                     </li>
                     <li>
@@ -223,12 +244,30 @@ function resetAquariumHandler() {
         </div>
     </nav>
     <div class="flex h-full max-md:flex-col-reverse">
-        <component :is="currentView" :fishes="fishes" :fish-life-cycles="fishLifeCycles" :maximum-lifetime="maximumLifetime" :feed-config="feedConfig" @add-fish="addFishHandler" />
-        <Aquarium :fishes="fishes" :fish-life-cycles="fishLifeCycles" :feed-bag="feedBag" :feed-time-latest="feedTimeLatest" :feed-config="feedConfig"
-            @feed-fish="feedFishHandler" @countdown-fish="countdownFishHandler" @dead-fish="deadFishHandler"
-            @clear-fish="clearFishHandler" @update-feed-bag="updateFeedBagHandler" @reset-aquarium="resetAquariumHandler">
+        <component :is="currentView" :fishes="fishes" :fish-life-cycles="fishLifeCycles" :maximum-lifetime="maximumLifetime"
+            :feed-config="feedConfig" @add-fish="addFishHandler" @form-validation-error="formValidationErrorHandler" />
+        <Aquarium :fishes="fishes" :fish-life-cycles="fishLifeCycles" :feed-bag="feedBag" :feed-time-latest="feedTimeLatest"
+            :feed-config="feedConfig" @feed-fish="feedFishHandler" @countdown-fish="countdownFishHandler"
+            @dead-fish="deadFishHandler" @clear-fish="clearFishHandler" @update-feed-bag="updateFeedBagHandler"
+            @reset-aquarium="resetAquariumHandler">
         </Aquarium>
-        <Toast :fish-died="fishDied"></Toast>
+        <div class="absolute right-0 top-10">
+            <div v-for="toast in toasts" :key="toast.id" :id="toast.id" :class="getToastClass(toast.type)" role="alert">
+                <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg">{{
+                    getToastIcon(toast.type) }}</div>
+                <div class="ml-3 text-sm font-normal">{{ toast.message }}</div>
+                <button type="button"
+                    class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"
+                    :data-dismiss-target="`#${toast.id}`" aria-label="Close">
+                    <span class="sr-only">Close</span>
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                    </svg>
+                </button>
+            </div>
+        </div>
     </div>
 </template>
 

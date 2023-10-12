@@ -27,6 +27,7 @@ const lifetimeInterval = ref({});
 const swimTimeout = ref({});
 const swimSpeed = ref('');
 const swimDirection = ref([]);
+const highlight = ref(false);
 
 const currentLifecycle = computed(() => {
     if (props.fishLifeCycles && props.alive) {
@@ -93,6 +94,8 @@ onMounted(() => {
                 setTimeout(() => {
                     beginSwim();
                 }, 500);
+
+                highlightFish();
             } else {
                 emit('dead', props.id);
                 beginSwim(true);
@@ -119,6 +122,8 @@ function tapFish() {
 
             clearTimeout(lifetimeTimeout.value);
             begineLifetimeCountdown();
+
+            highlightFish();
         }
     } else {
         emit('clear', props.id);
@@ -136,7 +141,7 @@ function begineLifetimeCountdown(remainLifetime) {
 function beginSwim(up) {
     let duration = getRandomNumber(5, 15) * 1000,
         xCoor = getRandomNumber(-xSwimDistance.value, xSwimDistance.value),
-        yCoor = up ? (-ySwimDistance.value - 100) : getRandomNumber(-ySwimDistance.value, ySwimDistance.value);
+        yCoor = up ? (-ySwimDistance.value - 50) : getRandomNumber(-ySwimDistance.value, ySwimDistance.value);
     swimSpeed.value = `${duration}ms`;
     swimDirection.value = [xCoor, yCoor];
 
@@ -152,10 +157,17 @@ function getRandomNumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
+function highlightFish(){
+    highlight.value = true;
+    setTimeout(() => {
+        highlight.value = false;
+    }, 1000);
+}
+
 </script>
 
 <template>
-    <div class="fish" :style="fishStyle" @click="tapFish">
+    <div :class="['fish', {'highlight': highlight}]" :style="fishStyle" @click="tapFish">
         <img class="fish-img" :src="fishImageSource" :style="fishImageStyle">
         <div v-if="currentLifecycle" class="fish-lifecycle text-xs relative">
             <span v-for="s in currentLifecycle.stars">⭐</span>
@@ -213,4 +225,20 @@ function getRandomNumber(min, max) {
     position: absolute;
     top: -40px;
     white-space: nowrap;
-}</style>
+}
+
+.highlight {
+    background-blend-mode: screen;
+    animation: highlight 1000ms ease-out;
+}
+
+@keyframes highlight {
+  0% {
+    background-color: cyan;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+</style>

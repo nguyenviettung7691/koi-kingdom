@@ -18,13 +18,15 @@ watch(maximumLifetimeModel, (newMaxLifetime) => {
     maximumLifetimeModel.value = Math.min(Math.max(newMaxLifetime, props.maximumLifetime.min), props.maximumLifetime.max);
 });
 
-const emit = defineEmits(['addFish']);
+const emit = defineEmits(['addFish', 'formValidationError']);
 
 function addFish(e) {
     const form = e.target;
     if (form.checkValidity()) {
         emit('addFish', fishTypeModel.value, fishNameModel.value, Number(maximumLifetimeModel.value));
         fishNameModel.value = '';
+    } else {
+        emit('formValidationError');
     }
 }
 
@@ -93,10 +95,18 @@ const setLifecycle = (lifecycle) => {
     display: inline-block;
     cursor: pointer;
     margin: 5px;
+    position: relative;
+    min-height: 60px;
+    min-width: 100px;
 }
 
 .fish-type-select input {
-    display: none;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+    position: absolute;
+    bottom: 0;
 }
 
 .fish-type-select input:checked~.fish {

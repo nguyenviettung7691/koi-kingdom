@@ -2,16 +2,36 @@
 import { useFishCurrentLifecycle, useFishTotalLifetime } from '../composable/fish.js';
 import { useTimeAgo, useDateFormat } from '@vueuse/core';
 import { ClockIcon, CalendarIcon } from '@heroicons/vue/24/solid';
+import { computed, ref } from 'vue';
+
+const columnNames = [
+    'ID',
+    'Name',
+    'Type',
+    'Status',
+    'Birthtime',
+    'Lifetime(remain/maximum)',
+    'Last fed',
+    'Lifetime when fed'
+];
 
 const props = defineProps({
     fishes: Array,
     fishLifeCycles: Array
 });
 
-const cellClass = "px-2 py-1 whitespace-nowrap";
+const columnModel = ref(columnNames);
+
+const columnSelections = computed(() => {
+    return columnModel.value.sort((a, b) => columnNames.indexOf(a) - columnNames.indexOf(b));
+});
 
 function getRowClass(index) {
-    return index % 2 == 0 ? 'bg-white border-b dark:bg-gray-800 dark:border-gray-700' : 'border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700';
+    return ['border-b hover:bg-gray-300', index % 2 == 0 ? 'bg-white' : 'bg-gray-100'];
+}
+
+function getCellClass(col){
+    return ['px-2 py-1 whitespace-nowrap'];
 }
 
 function mstoHour(ms) {
@@ -56,94 +76,74 @@ function getLifecycle(f) {
                 </div>
             </div>
         </div>
-        <div v-else class="fish-list relative overflow-x-auto shadow-md sm:rounded-lg">
-            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                        <th scope="col" :class="cellClass">
-                            ID
-                        </th>
-                        <th scope="col" :class="cellClass">
-                            Name
-                        </th>
-                        <th scope="col" :class="cellClass">
-                            Type
-                        </th>
-                        <th scope="col" :class="cellClass">
-                            Status
-                        </th>
-                        <th scope="col" :class="cellClass">
-                            Birthtime
-                        </th>
-                        <th scope="col" :class="cellClass">
-                            Lifetime (remain / maximum)
-                        </th>
-                        <th scope="col" :class="cellClass">
-                            Last fed
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(f, index) in fishes" :key="f.id" :class="getRowClass(index)">
-                        <th scope="row" :class="cellClass">
-                            <span class="font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ f.id }}</span>
-                        </th>
-                        <td :class="cellClass">
-                            {{ f.name }}
-                        </td>
-                        <td :class="cellClass">
-                            <div
-                                class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                                <img class="w-5 mr-1 inline-block" :src="`/${f.type}.png`" :alt="f.type">
-                                <span>{{ f.type }}</span>
-                            </div>
-                        </td>
-                        <td :class="cellClass">
-                            <div class="flex items-center mb-1">
-                                <div v-if="f.alive"
-                                    class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-gray-900 dark:text-gray-300">
-                                    <span class="text-xs" v-for="s in getLifecycle(f).stars">⭐</span>
-                                    <span class="ml-1">{{ getLifecycle(f).name }}</span>
+        <div v-else class="fish-list">
+            <div class="flex flex-wrap p-3 mb-3 block max-w-sm bg-white border border-gray-200 rounded-lg shadow">
+                <div class="flex items-center mr-4" v-for="col in columnNames">
+                    <input :id="`inline-checkbox-${col}`" type="checkbox" :value="col" v-model="columnModel" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
+                    <label :for="`inline-checkbox-${col}`" class="ml-2 text-sm font-medium text-gray-900">{{ col }}</label>
+                </div>
+            </div>
+            <div class="relative overflow-x-auto">
+                <table class="shadow-md sm:rounded-lg w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <tr>
+                            <th scope="col" :class="getCellClass(col)" v-for="col in columnSelections">{{col}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(f, index) in fishes" :key="f.id" :class="getRowClass(index)">
+                            <td scope="row" :class="getCellClass(col)" v-for="col in columnSelections">
+                                <span v-if="col == 'ID'" class="font-medium text-gray-900 whitespace-nowrap">{{ f.id }}</span>
+                                <span v-else-if="col == 'Name'">{{ f.name }}</span>
+                                <div v-else-if="col == 'Type'" class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                                    <img class="w-5 mr-1 inline-block" :src="`/${f.type}.png`" :alt="f.type">
+                                    <span>{{ f.type }}</span>
                                 </div>
-                            </div>
-                            <div class="flex items-center">
-                                <div v-if="f.alive"
-                                    class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
-                                    Alive</div>
-                                <div v-else
-                                    class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">
-                                    Dead</div>
-                            </div>
-                        </td>
-                        <td :class="cellClass">
-                            <span
-                                class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400">
-                                <CalendarIcon class="w-3 h-3 mr-1.5" />
-                                {{ useDateFormat(f.birthtime, 'DD-MM-YYYY HH:mm:ss') }}
-                            </span>
-                        </td>
-                        <td :class="cellClass">
-                            <div class="flex justify-between">
-                                <span class="text-sm font-medium text-blue-700 dark:text-white">{{
-                                    mstoHour(f.remainLifetime) }} hours</span>
-                                <span class="text-sm font-medium text-blue-700 dark:text-white">{{ mstoHour(f.lifetime) }}
-                                    hours</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                                <div class="bg-blue-600 h-2.5 rounded-full"
-                                    :style="`width: ${getLifetimePercent(f.remainLifetime, f.lifetime)}%`"></div>
-                            </div>
-                        </td>
-                        <td :class="cellClass">
-                            <div
-                                class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400">
-                                <ClockIcon class="w-3 h-3 mr-1.5" />
-                                {{ useTimeAgo(f.feedtime) }}
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                                <template v-else-if="col == 'Status'">
+                                    <div class="flex items-center mb-1">
+                                        <div v-if="f.alive" class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                                            <span class="text-xs" v-for="s in getLifecycle(f).stars">⭐</span>
+                                            <span class="ml-1">{{ getLifecycle(f).name }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div v-if="f.alive"
+                                            class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                                            Alive</div>
+                                        <div v-else
+                                            class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                                            Dead</div>
+                                    </div>
+                                </template>
+                                <span v-else-if="col == 'Birthtime'" class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded border border-blue-400">
+                                    <CalendarIcon class="w-3 h-3 mr-1.5" />
+                                    {{ useDateFormat(f.birthtime, 'DD-MM-YYYY HH:mm:ss') }}
+                                </span>
+                                <template v-else-if="col == 'Lifetime(remain/maximum)'">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm font-medium text-blue-700 dark:text-white">{{
+                                            mstoHour(f.remainLifetime) }} hours</span>
+                                        <span class="text-sm font-medium text-blue-700 dark:text-white">{{ mstoHour(f.lifetime) }}
+                                            hours</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                                        <div class="bg-blue-600 h-2.5 rounded-full"
+                                            :style="`width: ${getLifetimePercent(f.remainLifetime, f.lifetime)}%`"></div>
+                                    </div>
+                                </template>
+                                <div v-else-if="col == 'Last fed'"
+                                    class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded border border-blue-400">
+                                    <ClockIcon class="w-3 h-3 mr-1.5" />
+                                    {{ useTimeAgo(f.feedtime) }}
+                                </div>
+                                <div v-else-if="col == 'Lifetime when fed'">
+                                    <span class="text-sm font-medium text-blue-700">{{mstoHour(f.remainLifetimeWhenFed) }} hours</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </template>
