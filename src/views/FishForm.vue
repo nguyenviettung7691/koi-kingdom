@@ -3,7 +3,7 @@ import fishNames from '../json/fishNames.json';
 import Fish from '../Fish.vue';
 import { ref, watch } from 'vue';
 
-const fishTypes = ['golden-purple-fish', 'goldfish', 'guppie', 'tropical-fish', 'tuna', 'orange', 'koi', 'clown', 'blue', 'royal-angelfish'];
+const fishTypes = ['golden-purple-fish', 'goldfish', 'guppie', 'tropical-fish', 'tuna', 'clown', 'blue', 'royal-angelfish'];
 
 const props = defineProps({
     fishLifeCycles: Array,
@@ -82,7 +82,7 @@ const setLifecycle = (lifecycle) => {
     flex-direction: column;
     flex-basis: 25%;
     gap: 20px;
-    padding: 20px;
+    padding: 40px 20px;
 }
 
 .fish-form>div {

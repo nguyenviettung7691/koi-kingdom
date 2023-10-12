@@ -30,7 +30,7 @@ const maximumLifetime = {
 }
 const feedConfig = {
     increaseAmount: 6000, //seconds
-    replenishInterval: 6 * 60 * 60 * 1000, //ms
+    replenishInterval: 3 * 60 * 60 * 1000, //ms
     replenishAmount: 1
 }
 
@@ -226,18 +226,13 @@ function resetAquariumHandler() {
             <div class="hidden w-full md:block md:w-auto" id="navbar-default">
                 <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 rounded-lg md:flex-row md:space-x-8 md:mt-0">
                     <li>
-                        <a href="#/" class="block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600 hover:text-gray-700"
-                            aria-current="page">Add Fish</a>
+                        <a href="#/" class="block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600">Add Fish</a>
                     </li>
                     <li>
-                        <a href="#/list"
-                            class="block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600 hover:text-gray-700">Fish
-                            List</a>
+                        <a href="#/list" class="block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600">Fish List</a>
                     </li>
                     <li>
-                        <a href="#/howto"
-                            class="block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600 hover:text-gray-700">How
-                            to play</a>
+                        <a href="#/howto" class="block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600">How to play</a>
                     </li>
                 </ul>
             </div>

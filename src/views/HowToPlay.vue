@@ -46,5 +46,5 @@ const props = defineProps({
     flex-direction: column;
     flex-basis: 25%;
     gap: 20px;
-    padding: 20px;
+    padding: 40px 20px;
 }</style>

@@ -77,7 +77,7 @@ function getLifecycle(f) {
             </div>
         </div>
         <div v-else class="fish-list">
-            <div class="flex flex-wrap p-3 mb-3 block max-w-sm bg-white border border-gray-200 rounded-lg shadow">
+            <div class="flex flex-wrap p-3 mb-3 block bg-white border border-gray-200 rounded-lg shadow">
                 <div class="flex items-center mr-4" v-for="col in columnNames">
                     <input :id="`inline-checkbox-${col}`" type="checkbox" :value="col" v-model="columnModel" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
                     <label :for="`inline-checkbox-${col}`" class="ml-2 text-sm font-medium text-gray-900">{{ col }}</label>
@@ -153,5 +153,5 @@ function getLifecycle(f) {
     flex-direction: column;
     flex-basis: 25%;
     gap: 20px;
-    padding: 20px;
+    padding: 40px 20px;
 }</style>
