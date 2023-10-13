@@ -1,0 +1,51 @@
+{
+  "fishLifeCycles": [
+    { "name": "fry", "miniumLifetime": 90, "size": 0.3 },
+    { "name": "fingerling", "miniumLifetime": 800, "size": 0.5 },
+    { "name": "juvenile", "miniumLifetime": 7000, "size": 0.8 },
+    { "name": "smolt", "miniumLifetime": 50000, "size": 1.2 },
+    { "name": "adult", "miniumLifetime": 400000, "size": 1.5 },
+    { "name": "spawning", "miniumLifetime": 2000000, "size": 1.7 }
+  ],
+  "maximumLifetime": {
+    "min": 90,
+    "max": 2000000
+  },
+  "feedConfig": {
+    "increaseAmount": 30000,
+    "replenishInterval": 7200000,
+    "replenishAmount": 1
+  },
+  "rngConfig": {
+    "contamination": {
+      "deadFishModifer": 0.05,
+      "aliveFishModifer": 0.02,
+      "durationInHoursModifer": 0.01
+    },
+    "evolving": {
+      "feedCount": 10,
+      "feedCountModifer": 0.01,
+      "evolveFishTypes": [
+        "evolved-alexandrite",
+        "evolved-amethyst",
+        "evolved-aquamarine",
+        "evolved-diamond",
+        "evolved-emerald",
+        "evolved-golden-purple",
+        "evolved-golden",
+        "evolved-jade",
+        "evolved-pearl",
+        "evolved-ruby",
+        "evolved-sapphire",
+        "evolved-violet"
+      ]
+    },
+    "spawning": {
+      "spawningModifer": 0.05,
+      "lifetimeInHoursBase": 10,
+      "lifetimeInHoursModifier": 0.01,
+      "mythicalFishTypes": ["mythical-diamond", "mythical-koi", "mythical-koi-diamond", "mythical-koinobori"]
+    }
+  },
+  "defaultFeedBagCount": 5
+}

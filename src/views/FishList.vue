@@ -11,8 +11,10 @@ const columnNames = [
     'Status',
     'Birthtime',
     'Lifetime(remain/maximum)',
+    'Total lifetime',
     'Last fed',
-    'Lifetime when fed'
+    'Lifetime when fed',
+    'Feed count'
 ];
 
 const props = defineProps({
@@ -131,6 +133,9 @@ function getLifecycle(f) {
                                             :style="`width: ${getLifetimePercent(f.remainLifetime, f.lifetime)}%`"></div>
                                     </div>
                                 </template>
+                                <div v-else-if="col == 'Total lifetime'">
+                                    <span class="text-sm font-medium text-blue-700">{{mstoHour(useFishTotalLifetime(f.birthtime).totalLifetime) }} hours</span>
+                                </div>
                                 <div v-else-if="col == 'Last fed'"
                                     class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded border border-blue-400">
                                     <ClockIcon class="w-3 h-3 mr-1.5" />
@@ -138,6 +143,9 @@ function getLifecycle(f) {
                                 </div>
                                 <div v-else-if="col == 'Lifetime when fed'">
                                     <span class="text-sm font-medium text-blue-700">{{mstoHour(f.remainLifetimeWhenFed) }} hours</span>
+                                </div>
+                                <div v-else-if="col == 'Feed count'">
+                                    <span class="text-sm font-medium text-blue-700">{{ f.feedCount }}</span>
                                 </div>
                             </td>
                         </tr>

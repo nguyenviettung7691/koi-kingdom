@@ -1,4 +1,5 @@
 <script setup>
+import config from './json/config.json';
 import Aquarium from './Aquarium.vue';
 import FishForm from './views/FishForm.vue';
 import FishList from './views/FishList.vue';
@@ -8,7 +9,7 @@ import { initFlowbite } from 'flowbite';
 
 const idSeed = ref(0);
 const fishes = ref([]);
-const feedBag = ref(5);
+const feedBag = ref(config.defaultFeedBagCount);
 const feedTimeLatest = ref(0);
 const feedBagStreak = ref(0);
 
@@ -16,23 +17,7 @@ const toasts = ref([]);
 
 const currentPath = ref(window.location.hash)
 
-const fishLifeCycles = [
-    { name: 'fry', miniumLifetime: 90, size: 0.3 },
-    { name: 'fingerling', miniumLifetime: 800, size: 0.5 },
-    { name: 'juvenile', miniumLifetime: 7000, size: 0.8 },
-    { name: 'smolt', miniumLifetime: 50000, size: 1.2 },
-    { name: 'adult', miniumLifetime: 400000, size: 1.5 },
-    { name: 'spawning', miniumLifetime: 2000000, size: 1.7 }
-];
-const maximumLifetime = {
-    min: 90, //seconds
-    max: 2000000 //seconds
-}
-const feedConfig = {
-    increaseAmount: 6000, //seconds
-    replenishInterval: 3 * 60 * 60 * 1000, //ms
-    replenishAmount: 1
-}
+const { fishLifeCycles, maximumLifetime, feedConfig, rngConfig } = config;
 
 const routes = {
     '/': FishForm,
@@ -49,7 +34,7 @@ onMounted(() => {
 
         replenishFeedBag();
 
-        runRNG();
+        runRNG(rngConfig);
     }
 })
 
@@ -113,16 +98,21 @@ function replenishFeedBag() {
     }
 }
 
-function runRNG() {
-    const willFishDie = (numDeadFish, numAliveFish, durationInHours) => {
+function runRNG(rngConfig) {
+    //config
+    const { deadFishModifer, aliveFishModifer, durationInHoursModifer } = rngConfig.contamination;
+    const willFishDie = () => {
+        const numDeadFish = fishes.value.filter((f) => f.alive == false).length;
+        const numAliveFish = fishes.value.filter((f) => f.alive == true).length;
+        const durationInHours = (Date.now() - feedTimeLatest.value) / (1000 * 60 * 60);
         // Base probability of a fish dying
         let probability = 0;
 
         // Adjust the probability based on the given parameters
         if (numDeadFish > 0) {
-            probability += numDeadFish * 0.05; // Increase by 5% for each dead fish
-            probability += numAliveFish * 0.02; // Increase by 2% for each alive fish
-            probability += durationInHours * 0.01; // Increase by 1% for each hour
+            probability += numDeadFish * deadFishModifer; // Increase by 5% for each dead fish
+            probability += numAliveFish * aliveFishModifer; // Increase by 2% for each alive fish
+            probability += durationInHours * durationInHoursModifer; // Increase by 1% for each hour
         }
 
         // Generate a random number between 0 and 1
@@ -136,16 +126,13 @@ function runRNG() {
         }
     }
 
-    if (willFishDie(
-        fishes.value.filter((f) => f.alive == false).length,
-        fishes.value.filter((f) => f.alive == true).length,
-        (Date.now() - feedTimeLatest.value) / (1000 * 60 * 60)
-    )) {
-        fishes.value[Math.floor(Math.random() * fishes.value.length)].alive = false;
+    if (willFishDie()) {
+        const fish = fishes.value[Math.floor(Math.random() * fishes.value.length)];
+        fish.alive = false;
 
         toasts.value.push({
             id: 'toast-died-fish',
-            message: 'A fish has died because of contamination from other dead fishes in the aquarium. Try to remove all dead fishes from the aquarium as soon as possible.',
+            message: `The fish named ${fish.name} has died because of contamination from other dead fishes in the aquarium. Try to remove all dead fishes from the aquarium as soon as possible.`,
             type: 'warning'
         })
     }
@@ -157,7 +144,7 @@ function addFishHandler(type, name, miniumLifetime) {
         lifetime = miniumLifetime * 1000,
         birthtime = Date.now();
 
-    fishes.value.push({ type, name, id, alive, lifetime, birthtime, remainLifetime: lifetime, feedtime: birthtime, remainLifetimeWhenFed: lifetime });
+    fishes.value.push({ type, name, id, alive, lifetime, birthtime, remainLifetime: lifetime, feedtime: birthtime, remainLifetimeWhenFed: lifetime, feedCount: 0 });
     idSeed.value++;
 }
 
@@ -174,6 +161,7 @@ function feedFishHandler(id, countdown) {
     fish.remainLifetime = countdown;
     fish.remainLifetimeWhenFed = countdown;
     fish.feedtime = Date.now();
+    fish.feedCount += 1;
 
     feedTimeLatest.value = Date.now();
     feedBagStreak.value = 0;
@@ -187,20 +175,52 @@ function countdownFishHandler(id, countdown) {
     fish.remainLifetime = countdown;
 }
 function deadFishHandler(id) {
-    fishes.value.find((f) => f.id == id).alive = false;
+    const fish = fishes.value.find((f) => f.id == id);
+    fish.alive = false;
+
+    toasts.value.push({
+        id: 'toast-died-fish',
+        message: `The fish named ${fish.name} has died. Please remove from the aquarium.`,
+        type: 'warning'
+    })
 }
 function clearFishHandler(id) {
-    fishes.value.splice(fishes.value.indexOf(fishes.value.find((f) => f.id == id)), 1);
+    const fish = fishes.value.find((f) => f.id == id);
+    fishes.value.splice(fishes.value.indexOf(fish), 1);
+
+    toasts.value.push({
+        id: 'toast-cleared-fish',
+        message: `The fish named ${fish.name} has been removed from the aquarium. RIP.`,
+        type: 'info'
+    })
+}
+function evolveFishHandler(id) {
+    const evolvedFishType = Math.floor(Math.random() * rngConfig.evolving.evolveFishTypes.length);
+    const fish = fishes.value.find((f) => f.id == id);
+    fish.type = evolvedFishType;
+
+    toasts.value.push({
+        id: 'toast-evolved-fish',
+        message: `The fish named ${fish.name} has been evolved into type <strong>${evolvedFishType}</strong> <img class="w-5 ml-1 inline-block" src="/${evolvedFishType}.png" alt="${evolvedFishType}">!`,
+        type: 'info'
+    })
 }
 
 function getToastClass(type) {
     return ['flex items-center w-full max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 border-l-4',
         { 'border-orange-500': type == 'warning' },
-        { 'border-red-500': type == 'error' }
+        { 'border-red-500': type == 'error' },
+        { 'border-blue-500': type == 'info' }
     ];
 }
 function getToastIcon(type) {
-    return type == 'warning' ? '⚠' : '❌';
+    if (type == 'error') {
+        return '❌';
+    } else if (type == 'warning') {
+        return '⚠';
+    } else {
+        return '🛈';
+    }
 }
 
 function resetAquariumHandler() {
@@ -241,16 +261,16 @@ function resetAquariumHandler() {
     <div class="flex h-full max-md:flex-col-reverse">
         <component :is="currentView" :fishes="fishes" :fish-life-cycles="fishLifeCycles" :maximum-lifetime="maximumLifetime"
             :feed-config="feedConfig" @add-fish="addFishHandler" @form-validation-error="formValidationErrorHandler" />
-        <Aquarium :fishes="fishes" :fish-life-cycles="fishLifeCycles" :feed-bag="feedBag" :feed-time-latest="feedTimeLatest"
-            :feed-config="feedConfig" @feed-fish="feedFishHandler" @countdown-fish="countdownFishHandler"
-            @dead-fish="deadFishHandler" @clear-fish="clearFishHandler" @update-feed-bag="updateFeedBagHandler"
+        <Aquarium :fishes="fishes" :feed-bag="feedBag" :feed-time-latest="feedTimeLatest"
+            @feed-fish="feedFishHandler" @countdown-fish="countdownFishHandler"
+            @dead-fish="deadFishHandler" @clear-fish="clearFishHandler" @evolve-fish="evolveFishHandler" @update-feed-bag="updateFeedBagHandler"
             @reset-aquarium="resetAquariumHandler">
         </Aquarium>
         <div class="absolute right-0 top-10">
             <div v-for="toast in toasts" :key="toast.id" :id="toast.id" :class="getToastClass(toast.type)" role="alert">
                 <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg">{{
                     getToastIcon(toast.type) }}</div>
-                <div class="ml-3 text-sm font-normal">{{ toast.message }}</div>
+                <div class="ml-3 text-sm font-normal" v-html="toast.message"></div>
                 <button type="button"
                     class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"
                     :data-dismiss-target="`#${toast.id}`" aria-label="Close">
