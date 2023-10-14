@@ -32,12 +32,10 @@ const props = defineProps({
         <div>🐡 You can reset the whole aquarium (if you're heartless enough)</div>
         <div>🐡 The more dead fishes you have in the aquarium, the more chance other fishes will die because of
             contamination.</div>
-        <div>🐠 When the number of times a fish is fed reached a certain threshold, it may evolve into a new type of fish!
+        <div>🐠 When the number of times a fish is fed reached a certain threshold, it may evolve into a <i>gemstone</i> fish!
         </div>
-        <div>🐠 The more spawning fishes you have in the aquarium, the more chance a new special type of fish will join the
-            aquarium!</div>
-        <div>🐠 Even better: the shorter lifetime those fishes have, the more chance you may have a mythical fish join the
-            aquarium!</div>
+        <div>🐠 The more spawning fishes you have in the aquarium, the more chance an <i>elemental</i> fish will join the aquarium!</div>
+        <div>🐠 Even better: the shorter lifetime those fishes have, the more chance you may have a <strong>mythical</strong> fish join the aquarium!</div>
     </div>
 </template>
 <style scoped>

@@ -195,7 +195,9 @@ function clearFishHandler(id) {
     })
 }
 function evolveFishHandler(id) {
-    const evolvedFishType = Math.floor(Math.random() * rngConfig.evolving.evolveFishTypes.length);
+    const fishTypes = rngConfig.evolving.evolveFishTypes;
+    const randomIndex = Math.floor(Math.random() * fishTypes.length);
+    const evolvedFishType = fishTypes[randomIndex];
     const fish = fishes.value.find((f) => f.id == id);
     fish.type = evolvedFishType;
 

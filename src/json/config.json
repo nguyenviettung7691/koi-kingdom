@@ -1,4 +1,14 @@
 {
+  "defaultFishTypes": [
+    "golden-purple-fish",
+    "goldfish",
+    "guppie",
+    "tropical-fish",
+    "tuna",
+    "clown",
+    "blue",
+    "royal-angelfish"
+  ],
   "fishLifeCycles": [
     { "name": "fry", "miniumLifetime": 90, "size": 0.3 },
     { "name": "fingerling", "miniumLifetime": 800, "size": 0.5 },
@@ -26,25 +36,30 @@
       "feedCount": 10,
       "feedCountModifer": 0.01,
       "evolveFishTypes": [
-        "evolved-alexandrite",
-        "evolved-amethyst",
-        "evolved-aquamarine",
-        "evolved-diamond",
-        "evolved-emerald",
-        "evolved-golden-purple",
-        "evolved-golden",
-        "evolved-jade",
-        "evolved-pearl",
-        "evolved-ruby",
-        "evolved-sapphire",
-        "evolved-violet"
+        "gemstone-alexandrite",
+        "gemstone-amethyst",
+        "gemstone-aquamarine",
+        "gemstone-diamond",
+        "gemstone-emerald",
+        "gemstone-golden-purple",
+        "gemstone-golden",
+        "gemstone-jade",
+        "gemstone-pearl",
+        "gemstone-ruby",
+        "gemstone-sapphire",
+        "gemstone-violet"
       ]
     },
     "spawning": {
       "spawningModifer": 0.05,
       "lifetimeInHoursBase": 10,
       "lifetimeInHoursModifier": 0.01,
-      "mythicalFishTypes": ["mythical-diamond", "mythical-koi", "mythical-koi-diamond", "mythical-koinobori"]
+      "mythicalFishTypes": [
+        "mythical-diamond",
+        "mythical-koi",
+        "mythical-koi-diamond",
+        "mythical-koinobori"
+      ]
     }
   },
   "defaultFeedBagCount": 5

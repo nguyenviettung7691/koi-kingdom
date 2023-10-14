@@ -1,9 +1,10 @@
 <script setup>
 import fishNames from '../json/fishNames.json';
+import config from '../json/config.json';
 import Fish from '../Fish.vue';
 import { ref, watch } from 'vue';
 
-const fishTypes = ['golden-purple-fish', 'goldfish', 'guppie', 'tropical-fish', 'tuna', 'clown', 'blue', 'royal-angelfish'];
+const fishTypes = config.defaultFishTypes;
 
 const props = defineProps({
     fishLifeCycles: Array,
@@ -30,6 +31,11 @@ function addFish(e) {
     }
 }
 
+function randomFishType() {
+    const randomIndex = Math.floor(Math.random() * fishTypes.length);
+    fishTypeModel.value = fishTypes[randomIndex];
+}
+
 const generateFishName = () => {
     // Generate a random index to pick a name from the array
     const randomIndex = Math.floor(Math.random() * fishNames.length);
@@ -46,7 +52,10 @@ const setLifecycle = (lifecycle) => {
 <template>
     <form class="fish-form bg-cyan-800 max-md:h-5 overflow-y-scroll" @submit.prevent="addFish">
         <div>
-            <h3 class="text-white font-bold text-xl">Fish type</h3>
+            <div class="flex gap-2">
+                <h3 class="text-white font-bold text-xl">Fish type</h3>
+                <button type="button" class="text-sm rounded bg-white p-1" @click="randomFishType">Random type</button>
+            </div>
             <div class="max-md:h-24 max-md:whitespace-nowrap overflow-x-auto overflow-y-hidden">
                 <label v-for="(fishType, index) in fishTypes" class="fish-type-select" :key="index">
                     <input type="radio" name="fish-type" required :id="'fish-type' + index" :value="fishType"
@@ -82,7 +91,7 @@ const setLifecycle = (lifecycle) => {
     flex-direction: column;
     flex-basis: 25%;
     gap: 20px;
-    padding: 40px 20px;
+    padding: 80px 20px;
 }
 
 .fish-form>div {
@@ -97,7 +106,6 @@ const setLifecycle = (lifecycle) => {
     margin: 5px;
     position: relative;
     min-height: 60px;
-    min-width: 100px;
 }
 
 .fish-type-select input {
