@@ -38,3 +38,29 @@ export function useFishTotalLifetime(birthtime) {
   birthtime = toValue(birthtime);
   return { totalLifetime: Date.now() - birthtime };
 }
+
+/**
+ * Extracts the image path for a given fish.
+ *
+ * @param {Object} fish - The fish object.
+ * @param {string} fish.type - The type of fish.
+ * @param {boolean} fish.lifetime - Maximum ifetime of the fish.
+ * @param {boolean} fish.alive - Indicates if the fish is alive.
+ * @return {Object} The image path for the fish.
+ * @property {string} path - The path to the fish image.
+ */
+export function useFishImagePath(fish){
+  const fishImagePaths = ['gemstone', 'element', 'mythical'];
+  let path = '/fish';
+    
+    const indexOfHyphen = fish.type.indexOf('-');
+    if (indexOfHyphen !== -1) {
+        const type = fish.type.substring(0, indexOfHyphen);
+        if(fishImagePaths.includes(type)) {
+            path += '/' + type;
+        }
+    }
+    path += '/' + fish.type;
+
+    return { path: fish.lifetime ? (fish.alive ? `${path}.png` : `/dead.png`) : `${path}.png` };
+}

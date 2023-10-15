@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
 import config from './json/config.json'
+import { useFishImagePath } from './composable/fish.js'
 
 const props = defineProps({
     type: String,
@@ -53,7 +54,7 @@ const fishStyle = computed(() => {
     }
 })
 const fishImageSource = computed(() => {
-    return props.lifetime ? (props.alive ? `/${props.type}.png` : `/dead.png`) : `/${props.type}.png`;
+    return useFishImagePath(props).path;
 })
 const fishImageStyle = computed(() => {
     return {

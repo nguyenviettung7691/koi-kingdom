@@ -1,5 +1,5 @@
 <script setup>
-import { useFishCurrentLifecycle, useFishTotalLifetime } from '../composable/fish.js';
+import { useFishCurrentLifecycle, useFishTotalLifetime, useFishImagePath } from '../composable/fish.js';
 import { useTimeAgo, useDateFormat } from '@vueuse/core';
 import { ClockIcon, CalendarIcon } from '@heroicons/vue/24/solid';
 import { computed, ref } from 'vue';
@@ -98,7 +98,7 @@ function getLifecycle(f) {
                                 <span v-if="col == 'ID'" class="font-medium text-gray-900 whitespace-nowrap">{{ f.id }}</span>
                                 <span v-else-if="col == 'Name'">{{ f.name }}</span>
                                 <div v-else-if="col == 'Type'" class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                                    <img class="w-5 mr-1 inline-block" :src="`/${f.type}.png`" :alt="f.type">
+                                    <img class="w-5 mr-1 inline-block" :src="`${useFishImagePath(f).path}`" :alt="f.type">
                                     <span>{{ f.type }}</span>
                                 </div>
                                 <template v-else-if="col == 'Status'">

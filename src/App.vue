@@ -1,9 +1,13 @@
 <script setup>
 import config from './json/config.json';
+import { useFishTotalLifetime } from "./composable/fish.js";
+import fishNames from './json/fishNames.json';
+
 import Aquarium from './Aquarium.vue';
 import FishForm from './views/FishForm.vue';
 import FishList from './views/FishList.vue';
 import HowToPlay from './views/HowToPlay.vue';
+
 import { ref, watch, computed, onMounted } from 'vue';
 import { initFlowbite } from 'flowbite';
 
@@ -98,35 +102,8 @@ function replenishFeedBag() {
     }
 }
 
-function runRNG(rngConfig) {
-    //config
-    const { deadFishModifer, aliveFishModifer, durationInHoursModifer } = rngConfig.contamination;
-    const willFishDie = () => {
-        const numDeadFish = fishes.value.filter((f) => f.alive == false).length;
-        const numAliveFish = fishes.value.filter((f) => f.alive == true).length;
-        const durationInHours = (Date.now() - feedTimeLatest.value) / (1000 * 60 * 60);
-        // Base probability of a fish dying
-        let probability = 0;
-
-        // Adjust the probability based on the given parameters
-        if (numDeadFish > 0) {
-            probability += numDeadFish * deadFishModifer; // Increase by 5% for each dead fish
-            probability += numAliveFish * aliveFishModifer; // Increase by 2% for each alive fish
-            probability += durationInHours * durationInHoursModifer; // Increase by 1% for each hour
-        }
-
-        // Generate a random number between 0 and 1
-        const randomValue = Math.random();
-
-        // Check if the random number is less than or equal to the adjusted probability
-        if (randomValue <= probability) {
-            return true; // A fish will die
-        } else {
-            return false; // No fish will die
-        }
-    }
-
-    if (willFishDie()) {
+async function runRNG(rngConfig) {
+    if (willFishDie(rngConfig)) {
         const fish = fishes.value[Math.floor(Math.random() * fishes.value.length)];
         fish.alive = false;
 
@@ -135,6 +112,114 @@ function runRNG(rngConfig) {
             message: `The fish named ${fish.name} has died because of contamination from other dead fishes in the aquarium. Try to remove all dead fishes from the aquarium as soon as possible.`,
             type: 'warning'
         })
+    }
+
+    if(willAddElementFish(rngConfig)){
+        const { elementFishTypes, elementFishLifetime } = rngConfig.spawning;
+        const elementFishType = elementFishTypes[Math.floor(Math.random() * elementFishTypes.length)];
+        const fishName = fishNames[Math.floor(Math.random() * fishNames.length)];
+        
+        addFishHandler(elementFishType, fishName, elementFishLifetime);
+
+        toasts.value.push({
+            id: 'toast-element-fish',
+            message: `An elemental fish named ${fishName} with type ${elementFishType} just joined your aquarium! Good job!.`,
+            type: 'success'
+        })
+    }
+
+    if(willAddMythicalFish(rngConfig)){
+        const { mythicalFishTypes, mythicalFishLifetime } = rngConfig.spawning;
+        const mythicalFishType = mythicalFishTypes[Math.floor(Math.random() * mythicalFishTypes.length)];
+        const fishName = fishNames[Math.floor(Math.random() * fishNames.length)];
+
+        addFishHandler(mythicalFishType, fishName, mythicalFishLifetime);
+
+        toasts.value.push({
+            id: 'toast-mythical-fish',
+            message: `A mythical fish named ${fishName} with type ${mythicalFishType} just joined your aquarium! Congratulations! And try to take care of it!`,
+            type: 'success'
+        })
+    }
+}
+
+function willFishDie(rngConfig) {
+    // config
+    const { deadFishModifer, aliveFishModifer, durationInHoursModifer } = rngConfig.contamination;
+    // parameters
+    const numDeadFish = fishes.value.filter((f) => f.alive == false).length;
+    const numAliveFish = fishes.value.filter((f) => f.alive == true).length;
+    const durationInHours = (Date.now() - feedTimeLatest.value) / (1000 * 60 * 60);
+    // Base probability of a fish dying
+    let probability = 0;
+
+    // Adjust the probability based on the given parameters
+    if (numDeadFish > 0) {
+        probability += numDeadFish * deadFishModifer; // Increase by 5% for each dead fish
+        probability += numAliveFish * aliveFishModifer; // Increase by 2% for each alive fish
+        probability += durationInHours * durationInHoursModifer; // Increase by 1% for each hour
+    }
+
+    // Generate a random number between 0 and 1
+    const randomValue = Math.random();
+
+    // Check if the random number is less than or equal to the adjusted probability
+    if (randomValue <= probability) {
+        return true; // A fish will die
+    } else {
+        return false; // No fish will die
+    }
+}
+
+function willAddElementFish(rngConfig){
+    const { spawningModifer } = rngConfig.spawning;
+    const spawningLifecycle = fishLifeCycles.find((lc) => lc.name == 'spawning');
+
+    const numSpawning = fishes.value.filter((f) => useFishTotalLifetime(f.birthtime).totalLifetime > spawningLifecycle.miniumLifetime * 1000).length;
+
+    let probability = 0;
+
+    if (numSpawning > 0) {
+        console.log('numSpawning, spawningModifer, numSpawning * spawningModifer',numSpawning, spawningModifer, numSpawning * spawningModifer);
+        probability += numSpawning * spawningModifer; // Increase by 5% for each spawning fish
+    }
+
+    const randomValue = Math.random();
+
+    if (randomValue <= probability) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function willAddMythicalFish(rngConfig){
+    const { spawningModifer, lifetimeInHoursBase, lifetimeInHoursModifier } = rngConfig.spawning;
+    const spawningLifecycle = fishLifeCycles.find((lc) => lc.name == 'spawning');
+
+    const spawningFishes = fishes.value.filter((f) => useFishTotalLifetime(f.birthtime).totalLifetime > spawningLifecycle.miniumLifetime * 1000);
+    const numSpawning = spawningFishes.length;
+
+    let probability = 0;
+
+    if (numSpawning > 0) {
+        const spawningFishesBelowBaseHour = spawningFishes.filter((f) => Math.round(f.lifetime / 1000 / 60 / 60) < lifetimeInHoursBase);
+        const numSpawningBelowBaseHour = spawningFishesBelowBaseHour.length;
+
+        if(numSpawningBelowBaseHour > 0){
+            probability += numSpawningBelowBaseHour * spawningModifer; // Increase by 1% for each spawning fish below the base lifetime
+            spawningFishesBelowBaseHour.forEach((f) => {
+                probability += lifetimeInHoursModifier / Math.round(f.lifetime / 1000 / 60 / 60); // Increase by 1% for each hours below the base lifetime
+            })
+        }
+    }
+
+    const randomValue = Math.random();
+
+    if (randomValue <= probability) {
+        return true;
+    } else {
+        return false;
     }
 }
 
@@ -212,7 +297,8 @@ function getToastClass(type) {
     return ['flex items-center w-full max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 border-l-4',
         { 'border-orange-500': type == 'warning' },
         { 'border-red-500': type == 'error' },
-        { 'border-blue-500': type == 'info' }
+        { 'border-blue-500': type == 'info' },
+        { 'border-green-500': type == 'success' }
     ];
 }
 function getToastIcon(type) {
@@ -220,8 +306,10 @@ function getToastIcon(type) {
         return '❌';
     } else if (type == 'warning') {
         return '⚠';
-    } else {
+    } else if (type == 'info') {
         return '🛈';
+    } else if (type == 'success') {
+        return '✅';
     }
 }
 

@@ -52,14 +52,33 @@
     },
     "spawning": {
       "spawningModifer": 0.05,
-      "lifetimeInHoursBase": 10,
-      "lifetimeInHoursModifier": 0.01,
+      "lifetimeInHoursBase": 100,
+      "lifetimeInHoursModifier": 1,
+      "elementFishTypes": [
+        "element-crystal",
+        "element-earth",
+        "element-fear",
+        "element-fire",
+        "element-ice",
+        "element-light",
+        "element-lightning",
+        "element-metal",
+        "element-phantom",
+        "element-poison",
+        "element-psionic",
+        "element-shadow",
+        "element-sound",
+        "element-water",
+        "element-wind"
+      ],
+      "elementFishLifetime": 2050000,
       "mythicalFishTypes": [
         "mythical-diamond",
         "mythical-koi",
         "mythical-koi-diamond",
         "mythical-koinobori"
-      ]
+      ],
+      "mythicalFishLifetime": 2100000
     }
   },
   "defaultFeedBagCount": 5
