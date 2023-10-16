@@ -11,19 +11,19 @@ const props = defineProps({
     <div class="howto bg-white text-black p-2 bg-cyan-800 max-md:h-5 overflow-y-scroll">
         <div class="text-xl">How to play:</div>
         <div>🐟 To add a fish: select a basic fish type, name the fish, and select the maximum lifetime of the fish. The
-            maximum lifetime of a fish must be between {{ maximumLifetime.min }} seconds and {{ maximumLifetime.max }}
+            maximum lifetime of a fish must be between <span class="underline">{{ maximumLifetime.min }}</span> seconds and <span class="underline">{{ maximumLifetime.max }}</span>
             seconds. The
             fish will die if you don't feed it after the fish's maximum lifetime has passed.</div>
-        <div>🐟 Tap on the fish to feed it. Each feed will increase {{ feedConfig.increaseAmount }} seconds of lifetime. You
+        <div>🐟 Tap on the fish to feed it. Each feed will increase <span class="underline">{{ feedConfig.increaseAmount }}</span> seconds of lifetime. You
             can't feed the fish beyond
             its maximum lifetime.</div>
-        <div>🐟 You have a feed bag that contains a finite number of fish feed. Every {{ feedConfig.replenishInterval / (60
-            * 60 * 1000) }} hours since the last time you feed
-            you will get {{ feedConfig.replenishAmount }} fish feed.</div>
+        <div>🐟 You have a feed bag that contains a finite number of fish feed. Every <span class="underline">{{ feedConfig.replenishInterval / (60
+            * 60 * 1000) }}</span> hours since the last time you feed
+            you will get <span class="underline">{{ feedConfig.replenishAmount }}</span> fish feed.</div>
         <div>🐟 The fish will grow in size after entering a new lifecycle stage based on its total lifetime:
             <ul>
-                <li v-for="(lc, index) in fishLifeCycles" :key="lc.name">{{ lc.name }} (⭐x{{ index }}): {{ lc.miniumLifetime
-                }} sec</li>
+                <li v-for="(lc, index) in fishLifeCycles" :key="lc.name">{{ lc.name }} (⭐x{{ index }}): <span class="underline">{{ lc.miniumLifetime
+                }}</span> sec</li>
             </ul>
         </div>
         <div>🐟 The fish will display its information including: name, remaining lifetime (as healthbar), lifecycle stage
@@ -38,6 +38,8 @@ const props = defineProps({
             aquarium!</div>
         <div>🐠 Even better: the shorter lifetime those fishes have, the more chance you may have a
             <strong>mythical</strong> fish join the aquarium!</div>
+        <div>♒ You can unlock new aquarium appearances by clearing the required challenges. You can check the details in the "Aquarium" tab.</div>
+        <div>♒ You can change to the new aquarium, but you can only bring a small amount of fishes to the new aquarium. The number of fishes you can bring is based on the aquarium level.</div>
     </div>
 </template>
 <style scoped>

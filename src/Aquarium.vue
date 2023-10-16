@@ -97,7 +97,7 @@ function evolveHandler(id) {
 
 <style scoped>
 .aquarium {
-    background: url('/bg.jpg');
+    background: url('/aquarium-anime.jpg');
     flex-basis: 75%;
     position: relative;
     background-size: cover;
@@ -118,7 +118,8 @@ function evolveHandler(id) {
 
 .aquarium .feed-bag {
     position: absolute;
-    bottom: 10px;
-    left: 10px;
+    bottom: 0; left: 0;
+    padding: 20px;
     color: white;
+    background: radial-gradient(ellipse at 50% 50%, rgba(0, 12, 255, 1) 0%, rgba(0, 81, 212, 0) 60%);
 }</style>
