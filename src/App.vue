@@ -180,7 +180,6 @@ function willAddElementFish(rngConfig){
     let probability = 0;
 
     if (numSpawning > 0) {
-        console.log('numSpawning, spawningModifer, numSpawning * spawningModifer',numSpawning, spawningModifer, numSpawning * spawningModifer);
         probability += numSpawning * spawningModifer; // Increase by 5% for each spawning fish
     }
 
