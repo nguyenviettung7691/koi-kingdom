@@ -7,7 +7,8 @@ import { ClockIcon } from '@heroicons/vue/24/solid';
 const props = defineProps({
     fishes: Array,
     feedBag: Number,
-    feedTimeLatest: Number
+    feedTimeLatest: Number,
+    aquariumSelect: String
 });
 
 const aquarium = ref(null);
@@ -16,8 +17,7 @@ const aquariumHeight = computed(() => { return aquarium.value.clientHeight; });
 const aquariumWidth = computed(() => { return aquarium.value.clientWidth; });
 const lastFeed = computed(() => { return props.feedTimeLatest ? useTimeAgo(props.feedTimeLatest) : 'Never' });
 
-const emit = defineEmits(['feedFish', 'countdownFish', 'deadFish', 'clearFish', 'evolveFish', 'updateFeedBag', 'resetAquarium']);
-
+const emit = defineEmits(['feedFish', 'countdownFish', 'deadFish', 'clearFish', 'evolveFish', 'updateFeedBag', 'resetAquarium', 'toggleSize']);
 
 function feedHandler(id, countdown) {
     emit('feedFish', id, countdown);
@@ -35,16 +35,23 @@ function clearHandler(id) {
 function evolveHandler(id) {
     emit('evolveFish', id);
 }
+
+const aquariumStyle = computed(() => {
+    return {
+        backgroundImage: 'url(/aquarium-' + props.aquariumSelect + '.jpg)',
+    }
+})
 </script>
 
 <template>
-    <div class="aquarium" ref="aquarium">
+    <div class="aquarium" :style="aquariumStyle" ref="aquarium">
         <Fish v-for="fish in fishes" :key="fish.id" :type="fish.type" :name="fish.name" :id="fish.id" :alive="fish.alive"
             :lifetime="fish.lifetime" :remain-lifetime="fish.remainLifetime" :birthtime="fish.birthtime"
             :feedtime="fish.feedtime" :remain-lifetime-when-fed="fish.remainLifetimeWhenFed" :feed-count="fish.feedCount"
             :feed-bag="feedBag" :aquarium-height="aquariumHeight" :aquarium-width="aquariumWidth" @feed="feedHandler"
             @countdown="countdownHandler" @dead="deadHandler" @clear="clearHandler" @evolve="evolveHandler"></Fish>
         <div class="commands">
+            <button type="button" class="text-sm rounded bg-blue-500 p-1 text-white" @click="$emit('toggleSize')">Toggle size ↔</button>
             <button type="button" class="text-sm rounded bg-red-500 p-1 text-white" data-modal-target="reset-aquarium-modal"
                 data-modal-toggle="reset-aquarium-modal">Reset aquarium 🗙</button>
         </div>
@@ -96,8 +103,10 @@ function evolveHandler(id) {
 </template>
 
 <style scoped>
+.collapse-aquarium .aquarium {
+    flex-basis: 25%;
+}
 .aquarium {
-    background: url('/aquarium-anime.jpg');
     flex-basis: 75%;
     position: relative;
     background-size: cover;
@@ -114,6 +123,9 @@ function evolveHandler(id) {
     position: absolute;
     bottom: 10px;
     right: 10px;
+    display: flex;
+    gap: 5px;
+    flex-direction: column;
 }
 
 .aquarium .feed-bag {

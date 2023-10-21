@@ -7,6 +7,7 @@ import Aquarium from './Aquarium.vue';
 import FishForm from './views/FishForm.vue';
 import FishList from './views/FishList.vue';
 import HowToPlay from './views/HowToPlay.vue';
+import AquariumList from './views/AquariumList.vue';
 
 import { ref, watch, computed, onMounted } from 'vue';
 import { initFlowbite } from 'flowbite';
@@ -16,18 +17,23 @@ const fishes = ref([]);
 const feedBag = ref(config.defaultFeedBagCount);
 const feedTimeLatest = ref(0);
 const feedBagStreak = ref(0);
+const aquariumUnlocks = ref(["3d"]);
+const aquariumSelect = ref("3d");
 
 const toasts = ref([]);
+const toastIdSeed = ref(0);
+const collapseAquarium = ref(false);
 
 const currentPath = ref(window.location.hash)
 
-const { fishLifeCycles, maximumLifetime, feedConfig, rngConfig } = config;
+const { fishLifeCycles, maximumLifetime, feedConfig, rngConfig, aquariumConfig } = config;
 
 const routes = {
     '/': FishForm,
     '/form': FishForm,
     '/list': FishList,
-    '/howto': HowToPlay
+    '/howto': HowToPlay,
+    '/aquarium': AquariumList,
 }
 
 onMounted(() => {
@@ -67,6 +73,16 @@ watch(feedBagStreak, (newFeedBagStreak) => {
         localStorage.setItem("feedBagStreak", newFeedBagStreak);
     }
 })
+watch(aquariumUnlocks, (newAquariumUnlocks) => {
+    if (localStorage) {
+        localStorage.setItem("aquariumUnlocks", JSON.stringify(newAquariumUnlocks));
+    }
+})
+watch(aquariumSelect, (newAquariumSelect) => {
+    if (localStorage) {
+        localStorage.setItem("aquariumSelect", newAquariumSelect);
+    }
+})
 
 const currentView = computed(() => {
     return routes[currentPath.value.slice(1) || '/']
@@ -87,6 +103,10 @@ function initFromLocalStorage() {
     if (feedBagStreak_ls) feedBagStreak.value = Number(feedBagStreak_ls);
     const feedBag_ls = localStorage.getItem("feedBag");
     if (feedBag_ls) feedBag.value = Number(feedBag_ls);
+    const aquariumUnlocks_ls = JSON.parse(localStorage.getItem("aquariumUnlocks") || '["3d"]');
+    if (aquariumUnlocks_ls) aquariumUnlocks.value = aquariumUnlocks_ls;
+    const aquariumSelect_ls = localStorage.getItem("aquariumSelect") || "3d";
+    if (aquariumSelect_ls) aquariumSelect.value = aquariumSelect_ls;
 }
 
 function replenishFeedBag() {
@@ -108,7 +128,7 @@ async function runRNG(rngConfig) {
         fish.alive = false;
 
         toasts.value.push({
-            id: 'toast-died-fish',
+            id: 'toast-died-fish' + toastIdSeed.value++,
             message: `The fish named ${fish.name} has died because of contamination from other dead fishes in the aquarium. Try to remove all dead fishes from the aquarium as soon as possible.`,
             type: 'warning'
         })
@@ -122,7 +142,7 @@ async function runRNG(rngConfig) {
         addFishHandler(elementFishType, fishName, elementFishLifetime);
 
         toasts.value.push({
-            id: 'toast-element-fish',
+            id: 'toast-element-fish' + toastIdSeed.value++,
             message: `An elemental fish named ${fishName} with type ${elementFishType} just joined your aquarium! Good job!.`,
             type: 'success'
         })
@@ -136,7 +156,7 @@ async function runRNG(rngConfig) {
         addFishHandler(mythicalFishType, fishName, mythicalFishLifetime);
 
         toasts.value.push({
-            id: 'toast-mythical-fish',
+            id: 'toast-mythical-fish' + toastIdSeed.value++,
             message: `A mythical fish named ${fishName} with type ${mythicalFishType} just joined your aquarium! Congratulations! And try to take care of it!`,
             type: 'success'
         })
@@ -234,9 +254,29 @@ function addFishHandler(type, name, miniumLifetime) {
 
 function formValidationErrorHandler(e){
     toasts.value.push({
-        id: 'toast-form-validation',
+        id: 'toast-form-validation' + toastIdSeed.value++,
         message: 'Please select a type of fish, input a name, and input a maximum lifetime.',
         type: 'error'
+    })
+}
+
+function unlockAquariumHandler(aquarium){
+    aquariumUnlocks.value.push(aquarium);
+
+    toasts.value.push({
+        id: 'toast-aquarium-unlock-validation' + toastIdSeed.value++,
+        message: `Unlocked aquarium ${aquarium}.`,
+        type: 'success'
+    })
+}
+
+function selectAquariumHandler(aquarium){
+    aquariumSelect.value = aquarium;
+
+    toasts.value.push({
+        id: 'toast-aquarium-change-validation' + toastIdSeed.value++,
+        message: `Changed to aquarium ${aquarium}.`,
+        type: 'success'
     })
 }
 
@@ -263,7 +303,7 @@ function deadFishHandler(id) {
     fish.alive = false;
 
     toasts.value.push({
-        id: 'toast-died-fish',
+        id: 'toast-died-fish' + toastIdSeed.value++,
         message: `The fish named ${fish.name} has died. Please remove from the aquarium.`,
         type: 'warning'
     })
@@ -273,7 +313,7 @@ function clearFishHandler(id) {
     fishes.value.splice(fishes.value.indexOf(fish), 1);
 
     toasts.value.push({
-        id: 'toast-cleared-fish',
+        id: 'toast-cleared-fish' + toastIdSeed.value++,
         message: `The fish named ${fish.name} has been removed from the aquarium. RIP.`,
         type: 'info'
     })
@@ -286,7 +326,7 @@ function evolveFishHandler(id) {
     fish.type = evolvedFishType;
 
     toasts.value.push({
-        id: 'toast-evolved-fish',
+        id: 'toast-evolved-fish' + toastIdSeed.value++,
         message: `The fish named ${fish.name} has been evolved into type <strong>${evolvedFishType}</strong> <img class="w-5 ml-1 inline-block" src="/${evolvedFishType}.png" alt="${evolvedFishType}">!`,
         type: 'info'
     })
@@ -318,6 +358,12 @@ function resetAquariumHandler() {
     feedBag.value = 5;
     feedTimeLatest.value = 0;
     feedBagStreak.value = 0;
+    aquariumUnlocks.value = ["3d"];
+    aquariumSelect.value = "3d";
+}
+
+function toggleSizeHandler(){
+    collapseAquarium.value = !collapseAquarium.value;
 }
 </script>
 <template>
@@ -341,19 +387,23 @@ function resetAquariumHandler() {
                         <a href="#/list" class="block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600">Fish List</a>
                     </li>
                     <li>
+                        <a href="#/aquarium" class="block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600">Aquarium List</a>
+                    </li>
+                    <li>
                         <a href="#/howto" class="block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600">How to play</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
-    <div class="flex h-full max-md:flex-col-reverse">
+    <div :class="['flex h-full max-md:flex-col-reverse', {'collapse-aquarium': collapseAquarium}]">
         <component :is="currentView" :fishes="fishes" :fish-life-cycles="fishLifeCycles" :maximum-lifetime="maximumLifetime"
-            :feed-config="feedConfig" @add-fish="addFishHandler" @form-validation-error="formValidationErrorHandler" />
-        <Aquarium :fishes="fishes" :feed-bag="feedBag" :feed-time-latest="feedTimeLatest"
+            :feed-config="feedConfig" :aquarium-config="aquariumConfig" :aquarium-unlocks="aquariumUnlocks" :aquarium-select="aquariumSelect"
+            @add-fish="addFishHandler" @form-validation-error="formValidationErrorHandler" @unlock-aquarium="unlockAquariumHandler" @select-aquarium="selectAquariumHandler" />
+        <Aquarium :fishes="fishes" :feed-bag="feedBag" :feed-time-latest="feedTimeLatest" :aquarium-select="aquariumSelect"
             @feed-fish="feedFishHandler" @countdown-fish="countdownFishHandler"
             @dead-fish="deadFishHandler" @clear-fish="clearFishHandler" @evolve-fish="evolveFishHandler" @update-feed-bag="updateFeedBagHandler"
-            @reset-aquarium="resetAquariumHandler">
+            @reset-aquarium="resetAquariumHandler" @toggle-size="toggleSizeHandler">
         </Aquarium>
         <div class="absolute right-0 top-10">
             <div v-for="toast in toasts" :key="toast.id" :id="toast.id" :class="getToastClass(toast.type)" role="alert">

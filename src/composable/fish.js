@@ -40,6 +40,18 @@ export function useFishTotalLifetime(birthtime) {
 }
 
 /**
+ * Returns the current lifecycle of a fish based on the fish object, and fish life cycles.
+ *
+ * @param {object} fish - The fish object.
+ * @param {object[]} fishLifeCycles - The array of fish life cycles.
+ * @return {object} - The current fish lifecycle.
+ */
+export function useFishLifecycle(fish, fishLifeCycles) {
+  let totalLifetime = useFishTotalLifetime(fish.birthtime).totalLifetime;
+  return { lifecycle: useFishCurrentLifecycle(fish.alive, totalLifetime, fishLifeCycles).lifecycle };
+}
+
+/**
  * Extracts the image path for a given fish.
  *
  * @param {Object} fish - The fish object.

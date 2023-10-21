@@ -23,6 +23,7 @@ const props = defineProps({
 });
 
 const columnModel = ref(columnNames);
+const showFilter = ref(false);
 
 const columnSelections = computed(() => {
     return columnModel.value.sort((a, b) => columnNames.indexOf(a) - columnNames.indexOf(b));
@@ -51,8 +52,7 @@ function getLifecycle(f) {
 
 </script>
 <template>
-    <div
-        class="fish-list-container bg-white text-black p-2 bg-white text-black p-2 bg-cyan-800 max-md:h-5 overflow-y-scroll">
+    <div class="fish-list-container bg-white text-black bg-cyan-800 max-md:h-5 overflow-y-scroll max-md:py-2 px-5 py-20">
         <div class="text-xl">Fish List</div>
         <div v-if="fishes.length == 0">
             <div id="alert-additional-content-1"
@@ -78,8 +78,13 @@ function getLifecycle(f) {
                 </div>
             </div>
         </div>
-        <div v-else class="fish-list">
-            <div class="flex flex-wrap p-3 mb-3 block bg-white border border-gray-200 rounded-lg shadow">
+        <div v-else class="fish-list relative">
+            <button @click="showFilter = !showFilter" type="button" class="absolute right-0 -top-10 text-blue-700">
+                <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
+                    <path d="M18.85 1.1A1.99 1.99 0 0 0 17.063 0H2.937a2 2 0 0 0-1.566 3.242L6.99 9.868 7 14a1 1 0 0 0 .4.8l4 3A1 1 0 0 0 13 17l.01-7.134 5.66-6.676a1.99 1.99 0 0 0 .18-2.09Z"/>
+                </svg>
+            </button>
+            <div v-show="showFilter" class="flex flex-wrap p-3 mb-3 block bg-white border border-gray-200 rounded-lg shadow">
                 <div class="flex items-center mr-4" v-for="col in columnNames">
                     <input :id="`inline-checkbox-${col}`" type="checkbox" :value="col" v-model="columnModel" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2">
                     <label :for="`inline-checkbox-${col}`" class="ml-2 text-sm font-medium text-gray-900">{{ col }}</label>
@@ -156,10 +161,12 @@ function getLifecycle(f) {
     </div>
 </template>
 <style scoped>
+.collapse-aquarium .fish-list-container {
+    flex-basis: 75%;
+}
 .fish-list-container {
     display: flex;
     flex-direction: column;
     flex-basis: 25%;
     gap: 20px;
-    padding: 40px 20px;
 }</style>

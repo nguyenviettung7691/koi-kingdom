@@ -8,7 +8,7 @@ const props = defineProps({
 
 </script>
 <template>
-    <div class="howto bg-white text-black p-2 bg-cyan-800 max-md:h-5 overflow-y-scroll">
+    <div class="howto bg-white text-black bg-cyan-800 max-md:h-5 overflow-y-scroll max-md:py-2 px-5 py-20">
         <div class="text-xl">How to play:</div>
         <div>🐟 To add a fish: select a basic fish type, name the fish, and select the maximum lifetime of the fish. The
             maximum lifetime of a fish must be between <span class="underline">{{ maximumLifetime.min }}</span> seconds and <span class="underline">{{ maximumLifetime.max }}</span>
@@ -38,15 +38,16 @@ const props = defineProps({
             aquarium!</div>
         <div>🐠 Even better: the shorter lifetime those fishes have, the more chance you may have a
             <strong>mythical</strong> fish join the aquarium!</div>
-        <div>♒ You can unlock new aquarium appearances by clearing the required challenges. You can check the details in the "Aquarium" tab.</div>
-        <div>♒ You can change to the new aquarium, but you can only bring a small amount of fishes to the new aquarium. The number of fishes you can bring is based on the aquarium level.</div>
+        <div>♒ You can unlock new aquarium appearances by clearing the required conditions. You can check the details in the "Aquarium List" tab.</div>
     </div>
 </template>
 <style scoped>
+.collapse-aquarium .howto {
+    flex-basis: 75%;
+}
 .howto {
     display: flex;
     flex-direction: column;
     flex-basis: 25%;
     gap: 20px;
-    padding: 40px 20px;
 }</style>

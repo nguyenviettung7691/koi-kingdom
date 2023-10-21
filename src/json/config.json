@@ -1,9 +1,9 @@
 {
   "defaultFishTypes": [
-    "golden-purple-fish",
-    "goldfish",
+    "golden-purple",
+    "gold",
     "guppie",
-    "tropical-fish",
+    "tropical",
     "tuna",
     "clown",
     "blue",
@@ -81,5 +81,72 @@
       "mythicalFishLifetime": 2100000
     }
   },
+  "aquariumConfig": [
+    {
+      "name": "3d",
+      "basic": true
+    },
+    {
+      "name": "anime",
+      "unlock": [
+        {
+          "lifecycle": "adult",
+          "count": 4
+        },
+        {
+          "lifecycle": "smolt",
+          "count": 6
+        }
+      ]
+    },
+    {
+      "name": "creative",
+      "unlock": [
+        {
+          "lifecycle": "spawning",
+          "count": 2
+        },
+        {
+          "lifecycle": "adult",
+          "count": 4
+        }
+      ]
+    },
+    {
+      "name": "illustration",
+      "unlock": [
+        {
+          "lifecycle": "spawning",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "name": "photo",
+      "unlock": [
+        {
+          "lifecycle": "spawning",
+          "count": 2
+        },
+        {
+          "fishType": "gemstone-diamond",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "name": "reality",
+      "unlock": [
+        {
+          "lifecycle": "spawning",
+          "count": 2
+        },
+        {
+          "fishType": "element-crystal",
+          "count": 1
+        }
+      ]
+    }
+  ],
   "defaultFeedBagCount": 5
 }
