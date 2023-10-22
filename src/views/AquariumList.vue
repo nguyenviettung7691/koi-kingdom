@@ -33,7 +33,7 @@ function getUnlockButtonClass(aquarium){
 
 function isUnlockConditionMet(unlock){
     if(unlock.lifecycle){
-        return props.fishes.filter(f => useFishLifecycle(f, props.fishLifeCycles).lifecycle == unlock.lifecycle).length >= unlock.count;
+        return props.fishes.filter(f => useFishLifecycle(f, props.fishLifeCycles).lifecycle.name == unlock.lifecycle).length >= unlock.count;
     } else if(unlock.fishType){
         return props.fishes.filter(f => f.type == unlock.fishType).length >= unlock.count;
     } else {
@@ -62,39 +62,39 @@ function isAquariumUnlockCondtionMet(aquarium){
 }
 
 function unlockAquarium(aquarium){
-    emit('unlockAquarium', aquarium.name);
+    if(isAquariumUnlockCondtionMet(aquarium)) emit('unlockAquarium', aquarium.name)
 }
 
 function selectAquarium(aquarium){
-    emit('selectAquarium', aquarium.name);
+    if(getUnlockStatus(aquarium)) emit('selectAquarium', aquarium.name)
 }
 
 </script>
 <template>
     <div class="aquarium-list bg-white text-black bg-cyan-800 max-md:h-5 overflow-y-scroll max-md:py-2 px-5 py-20">
         <div class="text-xl">Aquarium List</div>
-        <div class="flex flex-wrap">
-            <div v-for="aquarium in props.aquariumConfig" :class="getClass(aquarium)">
-                <a href="#" @click="selectAquarium(aquarium)">
+        <div class="flex flex-wrap gap-5">
+            <div v-for="aquarium in props.aquariumConfig" :key="aquarium.name" :class="getClass(aquarium)">
+                <button @click="selectAquarium(aquarium)" :disabled="!getUnlockStatus(aquarium)" type="button">
                     <img class="rounded-t-lg" :src="`/aquarium-${aquarium.name}.jpg`" :alt="aquarium.name" />
-                </a>
+                </button>
                 <div class="p-5">
-                    <a href="#" @click="selectAquarium(aquarium)" class="flex items-center">
+                    <button @click="selectAquarium(aquarium)" :disabled="!getUnlockStatus(aquarium)" class="flex items-center" type="button">
                         <h5 class="text-2xl font-bold tracking-tight text-gray-900 uppercase">{{aquarium.name}}</h5>
                         <span v-show="getSelectStatus(aquarium)">✅</span>
-                    </a>
+                    </button>
                     <p v-if="aquarium.basic" class="mb-3 font-normal text-gray-700">This aquarium is unlock by default.</p>
-                    <p v-else class="mb-3 font-normal text-gray-700 flex flex-col gap-2">
+                    <p v-else v-show="!getUnlockStatus(aquarium)" class="mb-3 font-normal text-gray-700 flex flex-col gap-2">
                         <div>Unlock conditions:</div>
                         <ul class="text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg">
-                            <li v-for="unlock in aquarium.unlock" :key="unlock" class="w-full border-b border-gray-200 rounded-t-lg">
+                            <li v-for="(unlock, index) in aquarium.unlock" :key="index" class="w-full border-b border-gray-200 rounded-t-lg">
                                 <div class="flex items-center pl-3">
                                     <input :checked="isUnlockConditionMet(unlock)" type="checkbox" disabled class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
                                     <label class="w-full py-3 ml-2 text-sm font-medium text-gray-900" v-html="getUnlockDescription(unlock)"></label>
                                 </div>
                             </li>
                         </ul>
-                        <button v-show="!getUnlockStatus(aquarium)" @click="unlockAquarium(aquarium)" :disabled="!isAquariumUnlockCondtionMet(aquarium)" type="button" :class="getUnlockButtonClass(aquarium)">
+                        <button @click="unlockAquarium(aquarium)" :disabled="!isAquariumUnlockCondtionMet(aquarium)" type="button" :class="getUnlockButtonClass(aquarium)">
                             Unlock 🔓
                         </button>
                     </p>

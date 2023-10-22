@@ -16,10 +16,11 @@ const props = defineProps({
     feedCount: Number,
     feedBag: Number,
     aquariumHeight: Number,
-    aquariumWidth: Number
+    aquariumWidth: Number,
+    focused: Boolean
 });
 
-const emit = defineEmits(['feed', 'countdown', 'dead', 'clear', 'evolve']);
+const emit = defineEmits(['feed', 'feedEmpty', 'countdown', 'dead', 'clear', 'evolve']);
 
 const lifetimeCountup = ref(0);
 const lifetimeCountdown = ref(0);
@@ -117,7 +118,7 @@ onBeforeUnmount(() => {
     clearInterval(lifetimeInterval.value);
 })
 
-function runRNG(rngConfig){
+function runRNG(rngConfig) {
     //config
     const { feedCount, feedCountModifer } = rngConfig.evolving;
     const willFishEvolve = () => {
@@ -136,14 +137,14 @@ function runRNG(rngConfig){
         }
     }
 
-    if(willFishEvolve()){
+    if (willFishEvolve()) {
         emit('evolve', props.id);
     }
 }
 
 function tapFish() {
     if (props.alive) {
-        if(props.feedBag) {
+        if (props.feedBag) {
             const newRemainingLifetime = lifetimeCountdown.value + (feedConfig.increaseAmount * 1000);
             lifetimeCountdown.value = Math.min(newRemainingLifetime, props.lifetime);
 
@@ -153,6 +154,8 @@ function tapFish() {
             begineLifetimeCountdown();
 
             highlightFish();
+        } else {
+            emit('feedEmpty');
         }
     } else {
         emit('clear', props.id);
@@ -186,7 +189,7 @@ function getRandomNumber(min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
-function highlightFish(){
+function highlightFish() {
     highlight.value = true;
     setTimeout(() => {
         highlight.value = false;
@@ -196,7 +199,7 @@ function highlightFish(){
 </script>
 
 <template>
-    <div :class="['fish', {'highlight': highlight}]" :style="fishStyle" @click="tapFish">
+    <div :class="['fish', { 'highlight': highlight, 'focused': focused }]" :style="fishStyle" @click="tapFish">
         <img class="fish-img" :src="fishImageSource" :style="fishImageStyle">
         <div v-if="currentLifecycle" class="fish-lifecycle text-xs relative">
             <span v-for="s in currentLifecycle.stars">⭐</span>
@@ -242,7 +245,8 @@ function highlightFish(){
 
 .fish-lifetime .lifetime {
     position: absolute;
-    top: 0; right: 0;
+    top: 0;
+    right: 0;
     font-size: 10px;
     line-height: 10px;
     font-weight: bold;
@@ -261,13 +265,33 @@ function highlightFish(){
     animation: highlight 1000ms ease-out;
 }
 
-@keyframes highlight {
-  0% {
-    background-color: cyan;
-  }
-  100% {
-    background-color: transparent;
-  }
+.focused img {
+    background-blend-mode: screen;
+    animation: focused 1000ms ease-out;
+    animation-iteration-count: infinite;
 }
 
+@keyframes highlight {
+    0% {
+        background-color: cyan;
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}
+
+@keyframes focused {
+    0% {
+        filter: brightness(1);
+    }
+
+    50% {
+        filter: brightness(5);
+    }
+
+    100% {
+        filter: brightness(1);
+    }
+}
 </style>

@@ -2,7 +2,8 @@
 import { useFishCurrentLifecycle, useFishTotalLifetime, useFishImagePath } from '../composable/fish.js';
 import { useTimeAgo, useDateFormat } from '@vueuse/core';
 import { ClockIcon, CalendarIcon } from '@heroicons/vue/24/solid';
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
+import { initAccordions } from 'flowbite';
 
 const columnNames = [
     'ID',
@@ -22,8 +23,14 @@ const props = defineProps({
     fishLifeCycles: Array
 });
 
+defineEmits(['focusFish', 'blurFish']);
+
 const columnModel = ref(columnNames);
 const showFilter = ref(false);
+
+onMounted(() => {
+    initAccordions();
+});
 
 const columnSelections = computed(() => {
     return columnModel.value.sort((a, b) => columnNames.indexOf(a) - columnNames.indexOf(b));
@@ -55,9 +62,7 @@ function getLifecycle(f) {
     <div class="fish-list-container bg-white text-black bg-cyan-800 max-md:h-5 overflow-y-scroll max-md:py-2 px-5 py-20">
         <div class="text-xl">Fish List</div>
         <div v-if="fishes.length == 0">
-            <div id="alert-additional-content-1"
-                class="p-4 mb-4 text-blue-800 border border-blue-300 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400 dark:border-blue-800"
-                role="alert">
+            <div id="alert-no-fish" class="p-4 mb-4 text-blue-800 border border-blue-300 rounded-lg bg-blue-50" role="alert">
                 <div class="flex items-center">
                     <svg class="flex-shrink-0 w-4 h-4 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                         fill="currentColor" viewBox="0 0 20 20">
@@ -72,7 +77,7 @@ function getLifecycle(f) {
                 </div>
                 <div class="flex">
                     <a href="#/" type="button"
-                        class="text-white bg-blue-800 hover:bg-blue-900 focus:ring-4 focus:outline-none focus:ring-blue-200 font-medium rounded-lg text-xs px-3 py-1.5 mr-2 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                        class="text-white bg-blue-800 hover:bg-blue-900 focus:ring-4 focus:outline-none focus:ring-blue-200 font-medium rounded-lg text-xs px-3 py-1.5 mr-2 text-center inline-flex items-center">
                         Add fish
                     </a>
                 </div>
@@ -98,7 +103,7 @@ function getLifecycle(f) {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(f, index) in fishes" :key="f.id" :class="getRowClass(index)">
+                        <tr v-for="(f, index) in fishes" :key="f.id" :class="getRowClass(index)" @focus="$emit('focusFish', f)" @blur="$emit('blurFish')" tabindex="0">
                             <td scope="row" :class="getCellClass(col)" v-for="col in columnSelections">
                                 <span v-if="col == 'ID'" class="font-medium text-gray-900 whitespace-nowrap">{{ f.id }}</span>
                                 <span v-else-if="col == 'Name'">{{ f.name }}</span>
@@ -156,6 +161,21 @@ function getLifecycle(f) {
                         </tr>
                     </tbody>
                 </table>
+            </div>
+            <div id="accordion-hint" data-accordion="collapse" data-active-classes="bg-white text-gray-900" data-inactive-classes="text-gray-500">
+                <h2 id="accordion-hint-heading-1">
+                    <button type="button" class="flex items-center justify-between w-full py-5 font-medium text-left text-gray-500 border-b border-gray-200" data-accordion-target="#accordion-hint-body-1" aria-expanded="true" aria-controls="accordion-hint-body-1">
+                        <span>Hint</span>
+                        <svg data-accordion-icon class="w-3 h-3 rotate-180 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5 5 1 1 5"/>
+                        </svg>
+                    </button>
+                </h2>
+                <div id="accordion-hint-body-1" class="hidden" aria-labelledby="accordion-hint-heading-1">
+                    <div class="py-5 border-b border-gray-200">
+                        <p class="mb-2 text-gray-500">You can tap on a fish row to locate it in the aquarium. The fish will be blinking for you. Tap anywhere outside the list to stop blinking the fish.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

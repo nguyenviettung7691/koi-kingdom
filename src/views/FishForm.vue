@@ -2,7 +2,8 @@
 import fishNames from '../json/fishNames.json';
 import config from '../json/config.json';
 import Fish from '../Fish.vue';
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
+import { initTooltips } from 'flowbite';
 
 const fishTypes = config.defaultFishTypes;
 
@@ -14,6 +15,10 @@ const props = defineProps({
 const fishTypeModel = ref('');
 const fishNameModel = ref('');
 const maximumLifetimeModel = ref(90);
+
+onMounted(() => {
+    initTooltips();
+});
 
 watch(maximumLifetimeModel, (newMaxLifetime) => {
     maximumLifetimeModel.value = Math.min(Math.max(newMaxLifetime, props.maximumLifetime.min), props.maximumLifetime.max);

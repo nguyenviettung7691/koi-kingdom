@@ -8,7 +8,8 @@ const props = defineProps({
     fishes: Array,
     feedBag: Number,
     feedTimeLatest: Number,
-    aquariumSelect: String
+    aquariumSelect: String,
+    focusedFish: Number
 });
 
 const aquarium = ref(null);
@@ -17,11 +18,14 @@ const aquariumHeight = computed(() => { return aquarium.value.clientHeight; });
 const aquariumWidth = computed(() => { return aquarium.value.clientWidth; });
 const lastFeed = computed(() => { return props.feedTimeLatest ? useTimeAgo(props.feedTimeLatest) : 'Never' });
 
-const emit = defineEmits(['feedFish', 'countdownFish', 'deadFish', 'clearFish', 'evolveFish', 'updateFeedBag', 'resetAquarium', 'toggleSize']);
+const emit = defineEmits(['feedFish', 'feedEmpty', 'countdownFish', 'deadFish', 'clearFish', 'evolveFish', 'updateFeedBag', 'resetAquarium', 'toggleSize']);
 
 function feedHandler(id, countdown) {
     emit('feedFish', id, countdown);
     emit('updateFeedBag', props.feedBag - 1);
+}
+function feedEmptyHandler() {
+    emit('feedEmpty');
 }
 function countdownHandler(id, countdown) {
     emit('countdownFish', id, countdown);
@@ -48,8 +52,8 @@ const aquariumStyle = computed(() => {
         <Fish v-for="fish in fishes" :key="fish.id" :type="fish.type" :name="fish.name" :id="fish.id" :alive="fish.alive"
             :lifetime="fish.lifetime" :remain-lifetime="fish.remainLifetime" :birthtime="fish.birthtime"
             :feedtime="fish.feedtime" :remain-lifetime-when-fed="fish.remainLifetimeWhenFed" :feed-count="fish.feedCount"
-            :feed-bag="feedBag" :aquarium-height="aquariumHeight" :aquarium-width="aquariumWidth" @feed="feedHandler"
-            @countdown="countdownHandler" @dead="deadHandler" @clear="clearHandler" @evolve="evolveHandler"></Fish>
+            :feed-bag="feedBag" :aquarium-height="aquariumHeight" :aquarium-width="aquariumWidth" :focused="fish.id == focusedFish"
+            @feed="feedHandler" @feed-empty="feedEmptyHandler" @countdown="countdownHandler" @dead="deadHandler" @clear="clearHandler" @evolve="evolveHandler"></Fish>
         <div class="commands">
             <button type="button" class="text-sm rounded bg-blue-500 p-1 text-white" @click="$emit('toggleSize')">Toggle size ↔</button>
             <button type="button" class="text-sm rounded bg-red-500 p-1 text-white" data-modal-target="reset-aquarium-modal"
@@ -131,7 +135,8 @@ const aquariumStyle = computed(() => {
 .aquarium .feed-bag {
     position: absolute;
     bottom: 0; left: 0;
-    padding: 20px;
+    padding: 0px; margin: 20px;
     color: white;
-    background: radial-gradient(ellipse at 50% 50%, rgba(0, 12, 255, 1) 0%, rgba(0, 81, 212, 0) 60%);
+    background: rgba(0, 12, 255, 1);
+    box-shadow: 0px 0px 10px 5px rgba(0, 12, 255, 1);
 }</style>

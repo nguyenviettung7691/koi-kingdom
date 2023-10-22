@@ -8,6 +8,7 @@ import FishForm from './views/FishForm.vue';
 import FishList from './views/FishList.vue';
 import HowToPlay from './views/HowToPlay.vue';
 import AquariumList from './views/AquariumList.vue';
+import Toasts from './Toasts.vue';
 
 import { ref, watch, computed, onMounted } from 'vue';
 import { initFlowbite } from 'flowbite';
@@ -20,9 +21,9 @@ const feedBagStreak = ref(0);
 const aquariumUnlocks = ref(["3d"]);
 const aquariumSelect = ref("3d");
 
-const toasts = ref([]);
-const toastIdSeed = ref(0);
+const toastList = ref([]);
 const collapseAquarium = ref(false);
+const focusedFish = ref(-1);
 
 const currentPath = ref(window.location.hash)
 
@@ -77,7 +78,7 @@ watch(aquariumUnlocks, (newAquariumUnlocks) => {
     if (localStorage) {
         localStorage.setItem("aquariumUnlocks", JSON.stringify(newAquariumUnlocks));
     }
-})
+}, { deep: true })
 watch(aquariumSelect, (newAquariumSelect) => {
     if (localStorage) {
         localStorage.setItem("aquariumSelect", newAquariumSelect);
@@ -127,8 +128,8 @@ async function runRNG(rngConfig) {
         const fish = fishes.value[Math.floor(Math.random() * fishes.value.length)];
         fish.alive = false;
 
-        toasts.value.push({
-            id: 'toast-died-fish' + toastIdSeed.value++,
+        toastList.value.push({
+            id: 'died-fish',
             message: `The fish named ${fish.name} has died because of contamination from other dead fishes in the aquarium. Try to remove all dead fishes from the aquarium as soon as possible.`,
             type: 'warning'
         })
@@ -141,8 +142,8 @@ async function runRNG(rngConfig) {
         
         addFishHandler(elementFishType, fishName, elementFishLifetime);
 
-        toasts.value.push({
-            id: 'toast-element-fish' + toastIdSeed.value++,
+        toastList.value.push({
+            id: 'element-fish',
             message: `An elemental fish named ${fishName} with type ${elementFishType} just joined your aquarium! Good job!.`,
             type: 'success'
         })
@@ -155,8 +156,8 @@ async function runRNG(rngConfig) {
 
         addFishHandler(mythicalFishType, fishName, mythicalFishLifetime);
 
-        toasts.value.push({
-            id: 'toast-mythical-fish' + toastIdSeed.value++,
+        toastList.value.push({
+            id: 'mythical-fish',
             message: `A mythical fish named ${fishName} with type ${mythicalFishType} just joined your aquarium! Congratulations! And try to take care of it!`,
             type: 'success'
         })
@@ -253,8 +254,8 @@ function addFishHandler(type, name, miniumLifetime) {
 }
 
 function formValidationErrorHandler(e){
-    toasts.value.push({
-        id: 'toast-form-validation' + toastIdSeed.value++,
+    toastList.value.push({
+        id: 'form-validation',
         message: 'Please select a type of fish, input a name, and input a maximum lifetime.',
         type: 'error'
     })
@@ -263,8 +264,8 @@ function formValidationErrorHandler(e){
 function unlockAquariumHandler(aquarium){
     aquariumUnlocks.value.push(aquarium);
 
-    toasts.value.push({
-        id: 'toast-aquarium-unlock-validation' + toastIdSeed.value++,
+    toastList.value.push({
+        id: 'aquarium-unlock-validation',
         message: `Unlocked aquarium ${aquarium}.`,
         type: 'success'
     })
@@ -273,11 +274,18 @@ function unlockAquariumHandler(aquarium){
 function selectAquariumHandler(aquarium){
     aquariumSelect.value = aquarium;
 
-    toasts.value.push({
-        id: 'toast-aquarium-change-validation' + toastIdSeed.value++,
+    toastList.value.push({
+        id: 'aquarium-change-validation',
         message: `Changed to aquarium ${aquarium}.`,
         type: 'success'
     })
+}
+
+function focusFishHandler(fish) {
+    focusedFish.value = fish.id;
+}
+function blurFishHandler() {
+    focusedFish.value = -1;
 }
 
 function feedFishHandler(id, countdown) {
@@ -289,6 +297,13 @@ function feedFishHandler(id, countdown) {
 
     feedTimeLatest.value = Date.now();
     feedBagStreak.value = 0;
+}
+function feedEmptyHandler() {
+    toastList.value.push({
+        id: 'feed-empty',
+        message: `The feed bag is empty. Wait for refill.`,
+        type: 'warning'
+    })
 }
 function updateFeedBagHandler(count) {
     feedBag.value = count < 1 ? 0 : count;
@@ -302,8 +317,8 @@ function deadFishHandler(id) {
     const fish = fishes.value.find((f) => f.id == id);
     fish.alive = false;
 
-    toasts.value.push({
-        id: 'toast-died-fish' + toastIdSeed.value++,
+    toastList.value.push({
+        id: 'died-fish',
         message: `The fish named ${fish.name} has died. Please remove from the aquarium.`,
         type: 'warning'
     })
@@ -312,8 +327,8 @@ function clearFishHandler(id) {
     const fish = fishes.value.find((f) => f.id == id);
     fishes.value.splice(fishes.value.indexOf(fish), 1);
 
-    toasts.value.push({
-        id: 'toast-cleared-fish' + toastIdSeed.value++,
+    toastList.value.push({
+        id: 'cleared-fish',
         message: `The fish named ${fish.name} has been removed from the aquarium. RIP.`,
         type: 'info'
     })
@@ -325,31 +340,11 @@ function evolveFishHandler(id) {
     const fish = fishes.value.find((f) => f.id == id);
     fish.type = evolvedFishType;
 
-    toasts.value.push({
-        id: 'toast-evolved-fish' + toastIdSeed.value++,
+    toastList.value.push({
+        id: 'evolved-fish',
         message: `The fish named ${fish.name} has been evolved into type <strong>${evolvedFishType}</strong> <img class="w-5 ml-1 inline-block" src="/${evolvedFishType}.png" alt="${evolvedFishType}">!`,
         type: 'info'
     })
-}
-
-function getToastClass(type) {
-    return ['flex items-center w-full max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 border-l-4',
-        { 'border-orange-500': type == 'warning' },
-        { 'border-red-500': type == 'error' },
-        { 'border-blue-500': type == 'info' },
-        { 'border-green-500': type == 'success' }
-    ];
-}
-function getToastIcon(type) {
-    if (type == 'error') {
-        return '❌';
-    } else if (type == 'warning') {
-        return '⚠';
-    } else if (type == 'info') {
-        return '🛈';
-    } else if (type == 'success') {
-        return '✅';
-    }
 }
 
 function resetAquariumHandler() {
@@ -368,9 +363,9 @@ function toggleSizeHandler(){
 </script>
 <template>
     <nav class="bg-gradient-to-b from-indigo-500 absolute top-0 flex w-full z-10">
-        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+        <div class="max-w-screen-xl flex items-start justify-between mx-auto p-4">
             <button data-collapse-toggle="navbar-default" type="button"
-                class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-white rounded-lg md:hidden hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
                 aria-controls="navbar-default" aria-expanded="false">
                 <span class="sr-only">Open main menu</span>
                 <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
@@ -379,7 +374,7 @@ function toggleSizeHandler(){
                 </svg>
             </button>
             <div class="hidden w-full md:block md:w-auto" id="navbar-default">
-                <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 rounded-lg md:flex-row md:space-x-8 md:mt-0">
+                <ul class="font-medium flex flex-col min-md:p-4 min-md:mt-4 rounded-lg md:flex-row md:space-x-8 md:mt-0">
                     <li>
                         <a href="#/" class="block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600">Add Fish</a>
                     </li>
@@ -399,29 +394,14 @@ function toggleSizeHandler(){
     <div :class="['flex h-full max-md:flex-col-reverse', {'collapse-aquarium': collapseAquarium}]">
         <component :is="currentView" :fishes="fishes" :fish-life-cycles="fishLifeCycles" :maximum-lifetime="maximumLifetime"
             :feed-config="feedConfig" :aquarium-config="aquariumConfig" :aquarium-unlocks="aquariumUnlocks" :aquarium-select="aquariumSelect"
-            @add-fish="addFishHandler" @form-validation-error="formValidationErrorHandler" @unlock-aquarium="unlockAquariumHandler" @select-aquarium="selectAquariumHandler" />
-        <Aquarium :fishes="fishes" :feed-bag="feedBag" :feed-time-latest="feedTimeLatest" :aquarium-select="aquariumSelect"
-            @feed-fish="feedFishHandler" @countdown-fish="countdownFishHandler"
+            @add-fish="addFishHandler" @form-validation-error="formValidationErrorHandler" @unlock-aquarium="unlockAquariumHandler" @select-aquarium="selectAquariumHandler"
+            @focus-fish="focusFishHandler" @blur-fish="blurFishHandler" />
+        <Aquarium :fishes="fishes" :feed-bag="feedBag" :feed-time-latest="feedTimeLatest" :aquarium-select="aquariumSelect" :focused-fish="focusedFish"
+            @feed-fish="feedFishHandler" @feed-empty="feedEmptyHandler" @countdown-fish="countdownFishHandler"
             @dead-fish="deadFishHandler" @clear-fish="clearFishHandler" @evolve-fish="evolveFishHandler" @update-feed-bag="updateFeedBagHandler"
             @reset-aquarium="resetAquariumHandler" @toggle-size="toggleSizeHandler">
         </Aquarium>
-        <div class="absolute right-0 top-10">
-            <div v-for="toast in toasts" :key="toast.id" :id="toast.id" :class="getToastClass(toast.type)" role="alert">
-                <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg">{{
-                    getToastIcon(toast.type) }}</div>
-                <div class="ml-3 text-sm font-normal" v-html="toast.message"></div>
-                <button type="button"
-                    class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex items-center justify-center h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700"
-                    :data-dismiss-target="`#${toast.id}`" aria-label="Close">
-                    <span class="sr-only">Close</span>
-                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 14 14">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                    </svg>
-                </button>
-            </div>
-        </div>
+        <Toasts :toasts="toastList"></Toasts>
     </div>
 </template>
 

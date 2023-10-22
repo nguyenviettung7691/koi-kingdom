@@ -90,12 +90,8 @@
       "name": "anime",
       "unlock": [
         {
-          "lifecycle": "adult",
+          "lifecycle": "spawning",
           "count": 4
-        },
-        {
-          "lifecycle": "smolt",
-          "count": 6
         }
       ]
     },
@@ -103,11 +99,11 @@
       "name": "creative",
       "unlock": [
         {
-          "lifecycle": "spawning",
+          "lifecycle": "adult",
           "count": 2
         },
         {
-          "lifecycle": "adult",
+          "lifecycle": "smolt",
           "count": 4
         }
       ]
@@ -116,7 +112,15 @@
       "name": "illustration",
       "unlock": [
         {
-          "lifecycle": "spawning",
+          "lifecycle": "smolt",
+          "count": 1
+        },
+        {
+          "lifecycle": "juvenile",
+          "count": 2
+        },
+        {
+          "lifecycle": "fingerling",
           "count": 3
         }
       ]
@@ -125,8 +129,8 @@
       "name": "photo",
       "unlock": [
         {
-          "lifecycle": "spawning",
-          "count": 2
+          "lifecycle": "smolt",
+          "count": 1
         },
         {
           "fishType": "gemstone-diamond",
@@ -138,8 +142,8 @@
       "name": "reality",
       "unlock": [
         {
-          "lifecycle": "spawning",
-          "count": 2
+          "lifecycle": "smolt",
+          "count": 1
         },
         {
           "fishType": "element-crystal",
