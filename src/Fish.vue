@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
+import { computed, onMounted, onBeforeUnmount, ref, toRefs, inject } from 'vue'
 import config from './json/config.json'
 import { useFishImagePath } from './composable/fish.js'
 
@@ -19,8 +19,9 @@ const props = defineProps({
     aquariumWidth: Number,
     focused: Boolean
 });
-
+const { feedCount, aquariumHeight, aquariumWidth } = toRefs(props)
 const emit = defineEmits(['feed', 'feedEmpty', 'countdown', 'dead', 'clear', 'evolve']);
+const { willFishEvolve } = inject('rng')
 
 const lifetimeCountup = ref(0);
 const lifetimeCountdown = ref(0);
@@ -31,8 +32,9 @@ const swimSpeed = ref('');
 const swimDirection = ref([]);
 const highlight = ref(false);
 
-const { fishLifeCycles, feedConfig, rngConfig } = config;
+const { fishLifeCycles, feedConfig } = config;
 
+const isNormalType = computed(() => !['gemstone-','element-','mythical-'].some(prefix => props.type.startsWith(prefix)));
 const currentLifecycle = computed(() => {
     if (fishLifeCycles && props.alive) {
         for (let i = 0; i < fishLifeCycles.length; i++) {
@@ -73,8 +75,8 @@ const showFeedMe = computed(() => {
     return lifetimeCountdown.value < lifetimeWarning.value && props.alive && props.lifetime;
 })
 
-const xSwimDistance = computed(() => { return (props.aquariumWidth / 2) - 100; });
-const ySwimDistance = computed(() => { return (props.aquariumHeight / 2) - 100; });
+const xSwimDistance = computed(() => { return (aquariumWidth.value / 2) - 100; });
+const ySwimDistance = computed(() => { return (aquariumHeight.value / 2) - 100; });
 
 onMounted(() => {
     if (props.alive) {
@@ -86,9 +88,9 @@ onMounted(() => {
                 lifetimeCountdown.value = remainingLifetime;
                 lifetimeCountup.value = (Date.now() - props.birthtime) / 1000;
 
-                begineLifetimeCountdown(lifetimeCountdown.value);
+                beginLifetimeCountdown(lifetimeCountdown.value);
 
-                runRNG(rngConfig);
+                if(isNormalType.value) runRNG();
 
                 highlightFish();
 
@@ -118,26 +120,8 @@ onBeforeUnmount(() => {
     clearInterval(lifetimeInterval.value);
 })
 
-function runRNG(rngConfig) {
-    //config
-    const { feedCount, feedCountModifer } = rngConfig.evolving;
-    const willFishEvolve = () => {
-        let probability = 0;
-
-        if (feedCount > 10) {
-            probability += feedCount * feedCountModifer; // Increase by 1% for each count
-        }
-
-        const randomValue = Math.random();
-
-        if (randomValue <= probability) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    if (willFishEvolve()) {
+function runRNG() {
+    if (willFishEvolve(feedCount.value)) {
         emit('evolve', props.id);
     }
 }
@@ -151,7 +135,7 @@ function tapFish() {
             emit('feed', props.id, lifetimeCountdown.value);
 
             clearTimeout(lifetimeTimeout.value);
-            begineLifetimeCountdown();
+            beginLifetimeCountdown();
 
             highlightFish();
         } else {
@@ -162,7 +146,7 @@ function tapFish() {
     }
 }
 
-function begineLifetimeCountdown(remainLifetime) {
+function beginLifetimeCountdown(remainLifetime) {
     lifetimeTimeout.value = setTimeout(() => {
         emit('dead', props.id);
         clearInterval(lifetimeInterval.value);
@@ -231,7 +215,6 @@ function highlightFish() {
     background-color: rgba(255, 255, 255, 0.7);
     position: absolute;
     bottom: -40px;
-    width: 100%;
     white-space: nowrap;
 }
 

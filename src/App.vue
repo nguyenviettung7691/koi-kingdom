@@ -8,9 +8,10 @@ import FishForm from './views/FishForm.vue';
 import FishList from './views/FishList.vue';
 import HowToPlay from './views/HowToPlay.vue';
 import AquariumList from './views/AquariumList.vue';
+import DebugMode from './views/DebugMode.vue';
 import Toasts from './Toasts.vue';
 
-import { ref, watch, computed, onMounted } from 'vue';
+import { ref, watch, computed, onMounted, provide } from 'vue';
 import { initFlowbite } from 'flowbite';
 
 const idSeed = ref(0);
@@ -25,17 +26,15 @@ const toastList = ref([]);
 const collapseAquarium = ref(false);
 const focusedFish = ref(-1);
 
-const currentPath = ref(window.location.hash)
+const { fishLifeCycles, maximumLifetime, feedConfig, rngConfig, aquariumConfig, debugMode } = config;
 
-const { fishLifeCycles, maximumLifetime, feedConfig, rngConfig, aquariumConfig } = config;
-
-const routes = {
+const routes = { ...{
     '/': FishForm,
     '/form': FishForm,
     '/list': FishList,
     '/howto': HowToPlay,
     '/aquarium': AquariumList,
-}
+}, ...debugMode ? { '/debug': DebugMode } : {} }
 
 onMounted(() => {
     initFlowbite();
@@ -85,12 +84,21 @@ watch(aquariumSelect, (newAquariumSelect) => {
     }
 })
 
+const currentPath = ref(window.location.hash)
 const currentView = computed(() => {
     return routes[currentPath.value.slice(1) || '/']
 })
-
 window.addEventListener('hashchange', () => {
     currentPath.value = window.location.hash
+})
+const menuItems = computed(() => {
+    return [
+        { href: '#/', title: 'Add Fish' },
+        { href: '#/list', title: 'Fish List' },
+        { href: '#/aquarium', title: 'Aquarium List' },
+        { href: '#/howto', title: 'How to play' },
+        debugMode ? { href: '#/debug', title: 'Debug' } : {}
+    ]
 })
 
 function initFromLocalStorage() {
@@ -110,67 +118,66 @@ function initFromLocalStorage() {
     if (aquariumSelect_ls) aquariumSelect.value = aquariumSelect_ls;
 }
 
-function replenishFeedBag() {
+function willReplenishFeedBag() {
     if (feedTimeLatest.value) {
-        const replenishInterval = feedConfig.replenishInterval;
+        const { replenishInterval, replenishAmount } = feedConfig;
         const noFeedTime = Date.now() - feedTimeLatest.value;
         const timeDifference = Math.floor(noFeedTime / replenishInterval);
-        const feedBagReplenish = (timeDifference - feedBagStreak.value) * feedConfig.replenishAmount;
-        if (feedBagReplenish > 0) {
-            updateFeedBagHandler(feedBag.value + feedBagReplenish);
-            feedBagStreak.value = feedBagReplenish;
+        const feedBagReplenish = (timeDifference - feedBagStreak.value) * replenishAmount;
+        const result = feedBagReplenish > 0;
+        if(debugMode) {
+            console.log({
+                feedConfig, replenishInterval, replenishAmount,
+                feedTimeLatest: feedTimeLatest.value, noFeedTime, timeDifference,
+                feedBagStreak: feedBagStreak.value, feedBagReplenish,
+                result
+            })
+            console.log(`%c${result}`,`color:${result?'green':'red'}`)
         }
+        if (result) {
+            return feedBagReplenish;
+        }
+    }
+    return false;
+}
+function replenishFeedBag() {
+    const feedBagReplenish = willReplenishFeedBag();
+    if(feedBagReplenish != false){
+        updateFeedBagHandler(feedBag.value + feedBagReplenish);
+        feedBagStreak.value = feedBagReplenish;
     }
 }
 
 async function runRNG(rngConfig) {
-    if (willFishDie(rngConfig)) {
-        const fish = fishes.value[Math.floor(Math.random() * fishes.value.length)];
-        fish.alive = false;
-
-        toastList.value.push({
-            id: 'died-fish',
-            message: `The fish named ${fish.name} has died because of contamination from other dead fishes in the aquarium. Try to remove all dead fishes from the aquarium as soon as possible.`,
-            type: 'warning'
-        })
+    if(willFishDie(rngConfig)) {
+        fishDie();
     }
 
     if(willAddElementFish(rngConfig)){
-        const { elementFishTypes, elementFishLifetime } = rngConfig.spawning;
-        const elementFishType = elementFishTypes[Math.floor(Math.random() * elementFishTypes.length)];
-        const fishName = fishNames[Math.floor(Math.random() * fishNames.length)];
-        
-        addFishHandler(elementFishType, fishName, elementFishLifetime);
-
-        toastList.value.push({
-            id: 'element-fish',
-            message: `An elemental fish named ${fishName} with type ${elementFishType} just joined your aquarium! Good job!.`,
-            type: 'success'
-        })
+        addElementFish();
     }
 
     if(willAddMythicalFish(rngConfig)){
-        const { mythicalFishTypes, mythicalFishLifetime } = rngConfig.spawning;
-        const mythicalFishType = mythicalFishTypes[Math.floor(Math.random() * mythicalFishTypes.length)];
-        const fishName = fishNames[Math.floor(Math.random() * fishNames.length)];
-
-        addFishHandler(mythicalFishType, fishName, mythicalFishLifetime);
-
-        toastList.value.push({
-            id: 'mythical-fish',
-            message: `A mythical fish named ${fishName} with type ${mythicalFishType} just joined your aquarium! Congratulations! And try to take care of it!`,
-            type: 'success'
-        })
+        addMythicalFish();
     }
 }
+function fishDie(){
+    const fish = fishes.value[Math.floor(Math.random() * fishes.value.length)];
+    fish.alive = false;
 
+    toastList.value.push({
+        id: 'died-fish',
+        message: `The fish named ${fish.name} has died because of contamination from other dead fishes in the aquarium. Try to remove all dead fishes from the aquarium as soon as possible.`,
+        type: 'warning'
+    })
+}
 function willFishDie(rngConfig) {
     // config
     const { deadFishModifer, aliveFishModifer, durationInHoursModifer } = rngConfig.contamination;
     // parameters
     const numDeadFish = fishes.value.filter((f) => f.alive == false).length;
     const numAliveFish = fishes.value.filter((f) => f.alive == true).length;
-    const durationInHours = (Date.now() - feedTimeLatest.value) / (1000 * 60 * 60);
+    const durationInHours = feedTimeLatest.value ? ((Date.now() - feedTimeLatest.value) / (1000 * 60 * 60)) : 0;
     // Base probability of a fish dying
     let probability = 0;
 
@@ -185,13 +192,37 @@ function willFishDie(rngConfig) {
     const randomValue = Math.random();
 
     // Check if the random number is less than or equal to the adjusted probability
-    if (randomValue <= probability) {
+    const result = randomValue <= probability;
+    if(debugMode) {
+        console.log({
+            'rngConfig.contamination': rngConfig.contamination, feedTimeLatest: feedTimeLatest.value,
+            numDeadFish, deadFishRate: numDeadFish * deadFishModifer,
+            numAliveFish, aliveFishRate: numAliveFish * aliveFishModifer,
+            durationInHours, durationRate: durationInHours * durationInHoursModifer,
+            probability, randomValue, result
+        })
+        console.log(`%c${result}`,`color:${result?'green':'red'}`)
+    }
+    if (result) {
         return true; // A fish will die
     } else {
         return false; // No fish will die
     }
 }
 
+function addElementFish() {
+    const { elementFishTypes, elementFishLifetime } = rngConfig.spawning;
+    const elementFishType = elementFishTypes[Math.floor(Math.random() * elementFishTypes.length)];
+    const fishName = fishNames[Math.floor(Math.random() * fishNames.length)];
+    
+    addFishHandler(elementFishType, fishName, elementFishLifetime);
+
+    toastList.value.push({
+        id: 'element-fish',
+        message: `An elemental fish named ${fishName} with type <strong>${elementFishType}</strong> <img class="w-5 ml-1 inline-block" src="/fish/element/${elementFishType}.png" alt="${elementFishType}"> just joined your aquarium! Good job!.`,
+        type: 'success'
+    })
+}
 function willAddElementFish(rngConfig){
     const { spawningModifer } = rngConfig.spawning;
     const spawningLifecycle = fishLifeCycles.find((lc) => lc.name == 'spawning');
@@ -206,13 +237,35 @@ function willAddElementFish(rngConfig){
 
     const randomValue = Math.random();
 
-    if (randomValue <= probability) {
+    const result = randomValue <= probability;
+    if(debugMode) {
+        console.log({
+            'rngConfig.spawning': rngConfig.spawning, spawningLifecycle,
+            numSpawning, spawningRate: numSpawning * spawningModifer,
+            probability, randomValue, result
+        })
+        console.log(`%c${result}`,`color:${result?'green':'red'}`)
+    }
+    if (result) {
         return true;
     } else {
         return false;
     }
 }
 
+function addMythicalFish() {
+    const { mythicalFishTypes, mythicalFishLifetime } = rngConfig.spawning;
+    const mythicalFishType = mythicalFishTypes[Math.floor(Math.random() * mythicalFishTypes.length)];
+    const fishName = fishNames[Math.floor(Math.random() * fishNames.length)];
+
+    addFishHandler(mythicalFishType, fishName, mythicalFishLifetime);
+
+    toastList.value.push({
+        id: 'mythical-fish',
+        message: `A mythical fish named ${fishName} with type <strong>${mythicalFishType}</strong> <img class="w-5 ml-1 inline-block" src="/fish/mythical/${mythicalFishType}.png" alt="${mythicalFishType}"> just joined your aquarium! Congratulations! And try to take care of it!`,
+        type: 'success'
+    })
+}
 function willAddMythicalFish(rngConfig){
     const { spawningModifer, lifetimeInHoursBase, lifetimeInHoursModifier } = rngConfig.spawning;
     const spawningLifecycle = fishLifeCycles.find((lc) => lc.name == 'spawning');
@@ -232,11 +285,27 @@ function willAddMythicalFish(rngConfig){
                 probability += lifetimeInHoursModifier / Math.round(f.lifetime / 1000 / 60 / 60); // Increase by 1% for each hours below the base lifetime
             })
         }
+        if(debugMode) {
+            console.log({
+                spawningFishesBelowBaseHour, numSpawningBelowBaseHour,
+                spawningBelowBaseHourRate: numSpawningBelowBaseHour * spawningModifer,
+                lifetimeInHoursRate: lifetimeInHoursModifier / Math.round(f.lifetime / 1000 / 60 / 60)
+            })
+        }
     }
 
     const randomValue = Math.random();
 
-    if (randomValue <= probability) {
+    const result = randomValue <= probability;
+    if(debugMode) {
+        console.log({
+            'rngConfig.spawning': rngConfig.spawning, spawningLifecycle,
+            spawningFishes, numSpawning,
+            probability, randomValue, result
+        })
+        console.log(`%c${result}`,`color:${result?'green':'red'}`)
+    }
+    if (result) {
         return true;
     } else {
         return false;
@@ -333,6 +402,31 @@ function clearFishHandler(id) {
         type: 'info'
     })
 }
+function willFishEvolve(feedCount = 0) {
+    const { feedCount: feedCountConfig, feedCountModifer } = rngConfig.evolving;
+    let probability = 0;
+
+    if (feedCount > feedCountConfig) {
+        probability += feedCount * feedCountModifer; // Increase by 1% for each count
+    }
+
+    const randomValue = Math.random();
+
+    const result = randomValue <= probability;
+    if(debugMode) {
+        console.log({
+            'rngConfig.evolving': rngConfig.evolving,
+            feedCount, feedCountRate: feedCount * feedCountModifer, feedCountFlag: feedCount > feedCountConfig,
+            probability, randomValue, result
+        })
+        console.log(`%c${result}`,`color:${result?'green':'red'}`)
+    }
+    if (result) {
+        return true;
+    } else {
+        return false;
+    }
+}
 function evolveFishHandler(id) {
     const fishTypes = rngConfig.evolving.evolveFishTypes;
     const randomIndex = Math.floor(Math.random() * fishTypes.length);
@@ -342,7 +436,7 @@ function evolveFishHandler(id) {
 
     toastList.value.push({
         id: 'evolved-fish',
-        message: `The fish named ${fish.name} has been evolved into type <strong>${evolvedFishType}</strong> <img class="w-5 ml-1 inline-block" src="/${evolvedFishType}.png" alt="${evolvedFishType}">!`,
+        message: `The fish named ${fish.name} has been evolved into type <strong>${evolvedFishType}</strong> <img class="w-5 ml-1 inline-block" src="/fish/gemstone/${evolvedFishType}.png" alt="${evolvedFishType}">!`,
         type: 'info'
     })
 }
@@ -360,6 +454,10 @@ function resetAquariumHandler() {
 function toggleSizeHandler(){
     collapseAquarium.value = !collapseAquarium.value;
 }
+
+provide('rng', { fishDie, addElementFish, addMythicalFish, evolveFishHandler, willFishDie, willAddElementFish, willAddMythicalFish, willFishEvolve })
+provide('aquarium', { unlockAquariumHandler, updateFeedBagHandler, willReplenishFeedBag })
+provide('store', { fishes })
 </script>
 <template>
     <nav class="bg-gradient-to-b from-indigo-500 absolute top-0 flex w-full z-10">
@@ -375,17 +473,8 @@ function toggleSizeHandler(){
             </button>
             <div class="hidden w-full md:block md:w-auto" id="navbar-default">
                 <ul class="font-medium flex flex-col min-md:p-4 min-md:mt-4 rounded-lg md:flex-row md:space-x-8 md:mt-0">
-                    <li>
-                        <a href="#/" class="block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600">Add Fish</a>
-                    </li>
-                    <li>
-                        <a href="#/list" class="block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600">Fish List</a>
-                    </li>
-                    <li>
-                        <a href="#/aquarium" class="block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600">Aquarium List</a>
-                    </li>
-                    <li>
-                        <a href="#/howto" class="block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600">How to play</a>
+                    <li v-for="item in menuItems">
+                        <a :href="item.href" :class="['block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600', {'border-b-sky-600 border-b-4': item.href == currentPath}]">{{ item.title }}</a>
                     </li>
                 </ul>
             </div>
