@@ -17,9 +17,10 @@ const props = defineProps({
     feedBag: Number,
     aquariumHeight: Number,
     aquariumWidth: Number,
+    zoom: Number,
     focused: Boolean
 });
-const { feedCount, aquariumHeight, aquariumWidth } = toRefs(props)
+const { feedCount, aquariumHeight, aquariumWidth, zoom } = toRefs(props)
 const emit = defineEmits(['feed', 'feedEmpty', 'countdown', 'dead', 'clear', 'evolve']);
 const { willFishEvolve } = inject('rng')
 
@@ -53,7 +54,8 @@ const lifetimeWarning = computed(() => {
 const fishStyle = computed(() => {
     return {
         transitionDuration: swimSpeed.value,
-        transform: swimDirection.value[0] ? `translate(${swimDirection.value[0]}px, ${swimDirection.value[1]}px)` : ''
+        transform: swimDirection.value[0] ? `translate(${swimDirection.value[0]}px, ${swimDirection.value[1]}px)` : '',
+        zoom: zoom.value
     }
 })
 const fishImageSource = computed(() => {
@@ -203,6 +205,7 @@ function highlightFish() {
     cursor: pointer;
     transition-property: transform;
     transition-duration: 10000ms;
+    will-change: transform;
 }
 
 .fish-img {

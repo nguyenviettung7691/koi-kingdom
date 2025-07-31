@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import Fish from './Fish.vue';
 import { useTimeAgo } from '@vueuse/core';
-import { ClockIcon } from '@heroicons/vue/24/solid';
+import { ClockIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusIcon } from '@heroicons/vue/24/solid';
 
 const props = defineProps({
     fishes: Array,
@@ -12,14 +12,7 @@ const props = defineProps({
     focusedFish: Number
 });
 
-const aquarium = ref(null);
-
-const aquariumHeight = computed(() => { return aquarium.value.clientHeight; });
-const aquariumWidth = computed(() => { return aquarium.value.clientWidth; });
-const lastFeed = computed(() => { return props.feedTimeLatest ? useTimeAgo(props.feedTimeLatest) : 'Never' });
-
 const emit = defineEmits(['feedFish', 'feedEmpty', 'countdownFish', 'deadFish', 'clearFish', 'evolveFish', 'updateFeedBag', 'resetAquarium', 'toggleSize']);
-
 function feedHandler(id, countdown) {
     emit('feedFish', id, countdown);
     emit('updateFeedBag', props.feedBag - 1);
@@ -40,6 +33,21 @@ function evolveHandler(id) {
     emit('evolveFish', id);
 }
 
+const aquarium = ref(null);
+const aquariumHeight = computed(() => { return aquarium.value.clientHeight; });
+const aquariumWidth = computed(() => { return aquarium.value.clientWidth; });
+const feedBagShow = ref(false);
+const lastFeed = computed(() => { return props.feedTimeLatest ? useTimeAgo(props.feedTimeLatest) : 'Never' });
+
+const zoomMin = 0.5;
+const zoomMax = 1.5;
+const zoomStep = 0.1;
+const zoom = ref(1)
+function zoomAquarium(zoomIn){
+    if(zoomIn) { if(zoom.value < zoomMax) zoom.value += zoomStep }
+    else if(zoom.value > zoomMin) zoom.value -= zoomStep
+}
+
 const aquariumStyle = computed(() => {
     return {
         backgroundImage: 'url(/aquarium-' + props.aquariumSelect + '.jpg)',
@@ -52,26 +60,37 @@ const aquariumStyle = computed(() => {
         <Fish v-for="fish in fishes" :key="fish.id" :type="fish.type" :name="fish.name" :id="fish.id" :alive="fish.alive"
             :lifetime="fish.lifetime" :remain-lifetime="fish.remainLifetime" :birthtime="fish.birthtime"
             :feedtime="fish.feedtime" :remain-lifetime-when-fed="fish.remainLifetimeWhenFed" :feed-count="fish.feedCount"
-            :feed-bag="feedBag" :aquarium-height="aquariumHeight" :aquarium-width="aquariumWidth" :focused="fish.id == focusedFish"
+            :feed-bag="feedBag" :aquarium-height="aquariumHeight" :aquarium-width="aquariumWidth" :zoom="zoom" :focused="fish.id == focusedFish"
             @feed="feedHandler" @feed-empty="feedEmptyHandler" @countdown="countdownHandler" @dead="deadHandler" @clear="clearHandler" @evolve="evolveHandler"></Fish>
         <div class="commands">
-            <button type="button" class="text-sm rounded bg-blue-500 p-1 text-white" @click="$emit('toggleSize')">Toggle size ↔</button>
+            <div>
+                <div class="flex justify-between items-center">
+                    <MagnifyingGlassMinusIcon class="w-7 h-7 bg-white rounded" @click="zoomAquarium(false)"></MagnifyingGlassMinusIcon>
+                    <label for="fish-zoom" class="block text-sm font-medium bg-white rounded text-gray-900 dark:text-white">Fish zoom</label>
+                    <MagnifyingGlassPlusIcon class="w-7 h-7 bg-white rounded" @click="zoomAquarium(true)"></MagnifyingGlassPlusIcon>
+                </div>
+                <input id="fish-zoom" type="range" v-model="zoom" :min="zoomMin" :max="zoomMax" :step="zoomStep" class="w-full h-1 md:h-2 range-sm bg-gray-200 border-2 border-sky-500 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+            </div>
+            <button type="button" class="text-sm rounded bg-blue-500 p-1 text-white" @click="$emit('toggleSize')">Toggle panel ↔</button>
             <button type="button" class="text-sm rounded bg-red-500 p-1 text-white" data-modal-target="reset-aquarium-modal"
                 data-modal-toggle="reset-aquarium-modal">Reset aquarium 🗙</button>
         </div>
         <div class="feed-bag">
-            <div>Feedbag:
-                <span
-                    class="bg-red-100 text-red-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-red-400 border border-red-400">
-                    🍥 x {{ feedBag }}
-                </span>
-            </div>
-            <div>Last feed at:
-                <span
-                    class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400">
-                    <ClockIcon class="w-3 h-3 mr-1.5" />
-                    {{ lastFeed }}
-                </span>
+            <div class="absolute -top-6 text-2xl cursor-pointer" @click="feedBagShow = !feedBagShow">🥫</div>
+            <div v-show="feedBagShow">
+                <div>Feedbag:
+                    <span
+                        class="bg-red-100 text-red-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-red-400 border border-red-400">
+                        🍥 x {{ feedBag }}
+                    </span>
+                </div>
+                <div>Last fed at:
+                    <span
+                        class="bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400">
+                        <ClockIcon class="w-3 h-3 mr-1.5" />
+                        {{ lastFeed }}
+                    </span>
+                </div>
             </div>
         </div>
     </div>

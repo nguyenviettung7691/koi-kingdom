@@ -461,7 +461,7 @@ provide('store', { fishes })
 </script>
 <template>
     <nav class="bg-gradient-to-b from-indigo-500 absolute top-0 flex w-full z-10">
-        <div class="max-w-screen-xl flex items-start justify-between mx-auto p-4">
+        <div class="flex flex-col md:flex-row items-center max-w-screen-xl mx-auto p-4">
             <button data-collapse-toggle="navbar-default" type="button"
                 class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-white rounded-lg md:hidden hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-200"
                 aria-controls="navbar-default" aria-expanded="false">
