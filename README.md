@@ -2,7 +2,7 @@
 
 A feature-rich, interactive virtual aquarium built with Vue.js and TailwindCSS.
 
-![Preview screenshot](/preview.png)
+![Preview screenshot](/public/preview.png)
 
 ---
 
