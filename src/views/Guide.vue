@@ -10,7 +10,6 @@ const props = defineProps({
 </script>
 <template>
     <div class="guide bg-white text-black bg-cyan-800 max-md:h-5 overflow-y-scroll max-md:py-2 px-5 py-20">
-        <div class="text-xl">Playing guide:</div>
         <div>🐟 To add a fish: select a beginning fish type, name the fish, and select the maximum lifetime of the fish.
             You can choose any beginning fish type you like, it's only for aesthetics purpose. The purpose of the game is to evolve the fish from its beginning type to a more beautiful type.
             The maximum lifetime of a fish must be between <span class="underline">{{ maximumLifetime.min }}</span> seconds and <span class="underline">{{ maximumLifetime.max }}</span>

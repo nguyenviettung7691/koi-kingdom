@@ -11,11 +11,19 @@ const props = defineProps({
     aquariumSelect: String,
     focusedFish: Number
 });
-
 const emit = defineEmits(['feedFish', 'feedEmpty', 'countdownFish', 'deadFish', 'clearFish', 'evolveFish', 'updateFeedBag', 'resetAquarium', 'toggleSize']);
+
+const aquarium = ref(null);
+const aquariumHeight = computed(() => { return aquarium.value.clientHeight; });
+const aquariumWidth = computed(() => { return aquarium.value.clientWidth; });
+const decreasePopup = ref(false);
+const feedBagShow = ref(false);
+const lastFeed = computed(() => { return props.feedTimeLatest ? useTimeAgo(props.feedTimeLatest) : 'Never' });
+
 function feedHandler(id, countdown) {
     emit('feedFish', id, countdown);
     emit('updateFeedBag', props.feedBag - 1);
+    popupFoodcan();
 }
 function feedEmptyHandler() {
     emit('feedEmpty');
@@ -33,11 +41,12 @@ function evolveHandler(id) {
     emit('evolveFish', id);
 }
 
-const aquarium = ref(null);
-const aquariumHeight = computed(() => { return aquarium.value.clientHeight; });
-const aquariumWidth = computed(() => { return aquarium.value.clientWidth; });
-const feedBagShow = ref(false);
-const lastFeed = computed(() => { return props.feedTimeLatest ? useTimeAgo(props.feedTimeLatest) : 'Never' });
+function popupFoodcan(){
+    decreasePopup.value = true;
+    setTimeout(() => {
+        decreasePopup.value = false;
+    }, 1000);
+}
 
 const zoomMin = 0.5;
 const zoomMax = 1.5;
@@ -76,6 +85,7 @@ const aquariumStyle = computed(() => {
                 data-modal-toggle="reset-aquarium-modal">Reset aquarium ❌</button>
         </div>
         <div class="feed-bag">
+            <div :class="['decrease-amount', {'popup': decreasePopup}]">-1🍥</div>
             <div class="absolute -top-9 text-2xl cursor-pointer bg-white rounded border-sky-500 border-2" @click="feedBagShow = !feedBagShow">🥫</div>
             <div v-show="feedBagShow">
                 <div>Feed count:
@@ -158,4 +168,34 @@ const aquariumStyle = computed(() => {
     background: #fff;
     border: 1px solid skyblue;
     border-radius: 5px;
-}</style>
+}
+
+.decrease-amount {
+    position: absolute;
+    top: -66px;
+    left: 20px;
+    opacity: 0;
+    transform: translateX(-50%);
+    font-size: 30px;
+    font-weight: bold;
+    color: red;
+    -webkit-text-stroke: 1px maroon;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.decrease-amount.popup {
+    animation: decreasePopup 1s ease-out forwards;
+}
+
+@keyframes decreasePopup {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -40px);
+  }
+}
+</style>

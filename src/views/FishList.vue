@@ -60,7 +60,6 @@ function getLifecycle(f) {
 </script>
 <template>
     <div class="fish-list-container bg-white text-black bg-cyan-800 max-md:h-5 overflow-y-scroll max-md:py-2 px-5 py-20">
-        <div class="text-xl">Fish List</div>
         <div v-if="fishes.length == 0">
             <div id="alert-no-fish" class="p-4 mb-4 text-blue-800 border border-blue-300 rounded-lg bg-blue-50" role="alert">
                 <div class="flex items-center">
@@ -162,18 +161,20 @@ function getLifecycle(f) {
                     </tbody>
                 </table>
             </div>
-            <div id="accordion-hint" data-accordion="collapse" data-active-classes="bg-white text-gray-900" data-inactive-classes="text-gray-500">
-                <h2 id="accordion-hint-heading-1">
-                    <button type="button" class="flex items-center justify-between w-full py-5 font-medium text-left text-gray-500 border-b border-gray-200" data-accordion-target="#accordion-hint-body-1" aria-expanded="true" aria-controls="accordion-hint-body-1">
-                        <span>Hint</span>
+            <div id="tutorial" class="mt-5" data-accordion="open">
+                <h2 id="tutorial-heading-1">
+                    <button type="button" class="flex items-center justify-between w-full p-3 font-medium text-sky-500 border border-sky-200 rounded-t-md focus:ring-2 focus:ring-sky-200 gap-2" data-accordion-target="#tutorial-body-1" aria-expanded="false" aria-controls="tutorial-body-1">
+                        <span>💡 Hints!</span>
                         <svg data-accordion-icon class="w-3 h-3 rotate-180 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5 5 1 1 5"/>
                         </svg>
                     </button>
                 </h2>
-                <div id="accordion-hint-body-1" class="hidden" aria-labelledby="accordion-hint-heading-1">
-                    <div class="py-5 border-b border-gray-200">
-                        <p class="mb-2 text-gray-500">You can tap on a fish row to locate it in the aquarium. The fish will be blinking for you. Tap anywhere outside the list to stop blinking the fish.</p>
+                <div id="tutorial-body-1" class="hidden" aria-labelledby="tutorial-heading-1">
+                    <div class="p-5 border border-gray-200">
+                        <ul>
+                            <li>* You can tap on a fish row to locate it in the aquarium. The fish will be blinking for you. Tap anywhere outside the list to stop blinking the fish.</li>
+                        </ul>
                     </div>
                 </div>
             </div>

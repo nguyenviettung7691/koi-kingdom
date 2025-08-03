@@ -72,13 +72,12 @@ function selectAquarium(aquarium){
 </script>
 <template>
     <div class="aquarium-list bg-white text-black bg-cyan-800 max-md:h-5 overflow-y-scroll max-md:py-2 px-5 py-20">
-        <div class="text-xl">Aquarium List</div>
         <div class="flex flex-wrap gap-5">
             <div v-for="aquarium in props.aquariumConfig" :key="aquarium.name" :class="getClass(aquarium)">
                 <button @click="selectAquarium(aquarium)" :disabled="!getUnlockStatus(aquarium)" type="button">
-                    <img class="rounded-t-lg" :src="`/aquarium-${aquarium.name}.jpg`" :alt="aquarium.name" />
+                    <img class="rounded-t-lg h-[220px] object-cover" :src="`/aquarium-${aquarium.name}.jpg`" :alt="aquarium.name" />
                 </button>
-                <div class="p-5">
+                <div class="px-5 py-2">
                     <button @click="selectAquarium(aquarium)" :disabled="!getUnlockStatus(aquarium)" class="flex items-center" type="button">
                         <h5 class="text-2xl font-bold tracking-tight text-gray-900 uppercase">{{aquarium.name}}</h5>
                         <span v-show="getSelectStatus(aquarium)">✅</span>
@@ -113,6 +112,9 @@ function selectAquarium(aquarium){
     flex-direction: column;
     flex-basis: 25%;
     gap: 20px;
+}
+.aquarium-list .aquarium:hover img {
+    height: auto;
 }
 .aquarium-list .aquarium img {
     filter: grayscale(100%);

@@ -20,7 +20,7 @@ const props = defineProps({
     zoom: Number,
     focused: Boolean
 });
-const { feedCount, aquariumHeight, aquariumWidth, zoom } = toRefs(props)
+const { feedCount, aquariumHeight, aquariumWidth, zoom, focused } = toRefs(props)
 const emit = defineEmits(['feed', 'feedEmpty', 'countdown', 'dead', 'clear', 'evolve']);
 const { willFishEvolve } = inject('rng')
 
@@ -32,9 +32,11 @@ const swimTimeout = ref({});
 const swimSpeed = ref('');
 const swimDirection = ref([]);
 const highlight = ref(false);
+const popup = ref(false);
 
 const { fishLifeCycles, feedConfig } = config;
 
+const fishClass = computed(() => ['fish', { 'highlight': highlight.value, 'focused': focused.value, 'popup': popup.value }])
 const isNormalType = computed(() => !['gemstone-','element-','mythical-'].some(prefix => props.type.startsWith(prefix)));
 const currentLifecycle = computed(() => {
     if (fishLifeCycles && props.alive) {
@@ -140,6 +142,7 @@ function tapFish() {
             beginLifetimeCountdown();
 
             highlightFish();
+            popupFish();
         } else {
             emit('feedEmpty');
         }
@@ -181,11 +184,17 @@ function highlightFish() {
         highlight.value = false;
     }, 1000);
 }
+function popupFish(){
+    popup.value = true;
+    setTimeout(() => {
+        popup.value = false;
+    }, 1000);
+}
 
 </script>
 
 <template>
-    <div :class="['fish', { 'highlight': highlight, 'focused': focused }]" :style="fishStyle" @click="tapFish">
+    <div :class="fishClass" :style="fishStyle" @click="tapFish">
         <img class="fish-img" :src="fishImageSource" :style="fishImageStyle">
         <div v-if="currentLifecycle" class="fish-lifecycle text-xs relative">
             <span v-for="s in currentLifecycle.stars">⭐</span>
@@ -195,6 +204,7 @@ function highlightFish() {
             <div class="bar" :style="fishLifetimeBarStyle"></div>
             <div class="lifetime">{{ lifetime / 1000 }}</div>
         </div>
+        <div class="increase-amount">+{{feedConfig.increaseAmount}}s</div>
         <div v-show="showFeedMe" class="fish-feed-me rounded text-base font-bold p-2 text-red-500">FEED ME!</div>
     </div>
 </template>
@@ -206,6 +216,9 @@ function highlightFish() {
     transition-property: transform;
     transition-duration: 10000ms;
     will-change: transform;
+}
+.fish.popup .increase-amount {
+    animation: increasePopup 1s ease-out forwards;
 }
 
 .fish-img {
@@ -257,6 +270,20 @@ function highlightFish() {
     animation-iteration-count: infinite;
 }
 
+.increase-amount {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    opacity: 0;
+    transform: translateX(-50%);
+    font-size: 30px;
+    font-weight: bold;
+    color: green;
+    -webkit-text-stroke: 1px limegreen;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
 @keyframes highlight {
     0% {
         background-color: cyan;
@@ -279,5 +306,16 @@ function highlightFish() {
     100% {
         filter: brightness(1);
     }
+}
+
+@keyframes increasePopup {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -40px);
+  }
 }
 </style>

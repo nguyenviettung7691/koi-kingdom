@@ -96,7 +96,7 @@ const menuItems = computed(() => {
         { href: '#/', title: 'Add Fish' },
         { href: '#/list', title: 'Fish List' },
         { href: '#/aquarium', title: 'Aquarium List' },
-        { href: '#/guide', title: 'Guide' },
+        { href: '#/guide', title: 'Playing Guide' },
         debugMode ? { href: '#/debug', title: 'Debug' } : {}
     ]
 })
