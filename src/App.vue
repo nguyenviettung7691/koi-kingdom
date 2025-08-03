@@ -6,7 +6,7 @@ import fishNames from './json/fishNames.json';
 import Aquarium from './Aquarium.vue';
 import FishForm from './views/FishForm.vue';
 import FishList from './views/FishList.vue';
-import HowToPlay from './views/HowToPlay.vue';
+import Guide from './views/Guide.vue';
 import AquariumList from './views/AquariumList.vue';
 import DebugMode from './views/DebugMode.vue';
 import Toasts from './Toasts.vue';
@@ -32,7 +32,7 @@ const routes = { ...{
     '/': FishForm,
     '/form': FishForm,
     '/list': FishList,
-    '/howto': HowToPlay,
+    '/guide': Guide,
     '/aquarium': AquariumList,
 }, ...debugMode ? { '/debug': DebugMode } : {} }
 
@@ -96,7 +96,7 @@ const menuItems = computed(() => {
         { href: '#/', title: 'Add Fish' },
         { href: '#/list', title: 'Fish List' },
         { href: '#/aquarium', title: 'Aquarium List' },
-        { href: '#/howto', title: 'How to play' },
+        { href: '#/guide', title: 'Guide' },
         debugMode ? { href: '#/debug', title: 'Debug' } : {}
     ]
 })
@@ -474,7 +474,7 @@ provide('store', { fishes })
             <div class="hidden w-full md:block md:w-auto" id="navbar-default">
                 <ul class="font-medium flex flex-col min-md:p-4 min-md:mt-4 rounded-lg md:flex-row md:space-x-8 md:mt-0">
                     <li v-for="item in menuItems">
-                        <a :href="item.href" :class="['block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600', {'border-b-sky-600 border-b-4': item.href == currentPath}]">{{ item.title }}</a>
+                        <a v-if="item.href" :href="item.href" :class="['block py-2 pl-3 pr-4 text-white rounded hover:bg-sky-600', {'border-b-sky-600 border-b-4': item.href == currentPath}]">{{ item.title }}</a>
                     </li>
                 </ul>
             </div>

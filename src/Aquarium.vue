@@ -65,20 +65,20 @@ const aquariumStyle = computed(() => {
         <div class="commands">
             <div>
                 <div class="flex justify-between items-center">
-                    <MagnifyingGlassMinusIcon class="w-7 h-7 bg-white rounded" @click="zoomAquarium(false)"></MagnifyingGlassMinusIcon>
-                    <label for="fish-zoom" class="block text-sm font-medium bg-white rounded text-gray-900 dark:text-white">Fish zoom</label>
-                    <MagnifyingGlassPlusIcon class="w-7 h-7 bg-white rounded" @click="zoomAquarium(true)"></MagnifyingGlassPlusIcon>
+                    <MagnifyingGlassMinusIcon class="w-7 h-7 bg-white rounded border-sky-500 border-2" @click="zoomAquarium(false)"></MagnifyingGlassMinusIcon>
+                    <label for="fish-zoom" class="block text-sm font-medium text-white text">Fish zoom</label>
+                    <MagnifyingGlassPlusIcon class="w-7 h-7 bg-white rounded border-sky-500 border-2" @click="zoomAquarium(true)"></MagnifyingGlassPlusIcon>
                 </div>
                 <input id="fish-zoom" type="range" v-model="zoom" :min="zoomMin" :max="zoomMax" :step="zoomStep" class="w-full h-1 md:h-2 range-sm bg-gray-200 border-2 border-sky-500 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
             </div>
-            <button type="button" class="text-sm rounded bg-blue-500 p-1 text-white" @click="$emit('toggleSize')">Toggle panel ↔</button>
-            <button type="button" class="text-sm rounded bg-red-500 p-1 text-white" data-modal-target="reset-aquarium-modal"
-                data-modal-toggle="reset-aquarium-modal">Reset aquarium 🗙</button>
+            <button type="button" class="text-sm rounded bg-white p-1 text-blue-500 border-sky-500 border-2" @click="$emit('toggleSize')">Toggle panel ↔️</button>
+            <button type="button" class="text-sm rounded bg-white p-1 text-red-500 border-sky-500 border-2" data-modal-target="reset-aquarium-modal"
+                data-modal-toggle="reset-aquarium-modal">Reset aquarium ❌</button>
         </div>
         <div class="feed-bag">
-            <div class="absolute -top-6 text-2xl cursor-pointer" @click="feedBagShow = !feedBagShow">🥫</div>
+            <div class="absolute -top-9 text-2xl cursor-pointer bg-white rounded border-sky-500 border-2" @click="feedBagShow = !feedBagShow">🥫</div>
             <div v-show="feedBagShow">
-                <div>Feedbag:
+                <div>Feed count:
                     <span
                         class="bg-red-100 text-red-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-red-400 border border-red-400">
                         🍥 x {{ feedBag }}
@@ -155,7 +155,7 @@ const aquariumStyle = computed(() => {
     position: absolute;
     bottom: 0; left: 0;
     padding: 0px; margin: 20px;
-    color: white;
-    background: rgba(0, 12, 255, 1);
-    box-shadow: 0px 0px 10px 5px rgba(0, 12, 255, 1);
+    background: #fff;
+    border: 1px solid skyblue;
+    border-radius: 5px;
 }</style>
