@@ -311,11 +311,11 @@ function popupFish(){
 @keyframes increasePopup {
   0% {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translate(-50%, -20px);
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -40px);
+    transform: translate(-50%, -80px);
   }
 }
 </style>

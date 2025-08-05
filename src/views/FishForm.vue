@@ -3,8 +3,8 @@ import fishNames from '../json/fishNames.json';
 import config from '../json/config.json';
 import Fish from '../Fish.vue';
 import { ref, watch, onMounted } from 'vue';
-import { initTooltips, initAccordions } from 'flowbite';
-import { ClockIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusIcon } from '@heroicons/vue/24/solid';
+import { initTooltips, initAccordions, Dropdown } from 'flowbite';
+import { MagnifyingGlassMinusIcon, MagnifyingGlassPlusIcon } from '@heroicons/vue/24/solid';
 
 const fishTypes = config.defaultFishTypes;
 
@@ -13,6 +13,9 @@ const props = defineProps({
     maximumLifetime: Object
 });
 
+const dropdownLifetime = ref();
+const dropdownLifetimeButton = ref();
+const dropdownLifetimeInstance = ref();
 const fishTypeModel = ref('');
 const fishNameModel = ref('');
 const maximumLifetimeModel = ref(90);
@@ -20,6 +23,7 @@ const maximumLifetimeModel = ref(90);
 onMounted(() => {
     initTooltips();
     initAccordions();
+    dropdownLifetimeInstance.value = new Dropdown(dropdownLifetime.value, dropdownLifetimeButton.value);
 });
 
 watch(maximumLifetimeModel, (newMaxLifetime) => {
@@ -53,6 +57,7 @@ const generateFishName = () => {
 
 const setLifecycle = (lifecycle) => {
     maximumLifetimeModel.value = lifecycle.miniumLifetime;
+    dropdownLifetimeInstance.value.hide();
 };
 
 function getFishTooltipId(type) {
@@ -64,8 +69,8 @@ function getFishTooltipId(type) {
     <form class="fish-form bg-cyan-800 max-md:h-5 overflow-y-scroll max-md:py-2 px-5 py-20" @submit.prevent="addFish">
         <div>
             <div class="flex gap-2">
-                <h3 class="text-white font-bold text-xl">Fish type</h3>
-                <button type="button" class="text-sm rounded bg-white p-1" @click="randomFishType">🎲 Random</button>
+                <label class="block text-xl font-medium text-white">Fish type</label>
+                <button type="button" class="text-base rounded bg-white p-1" @click="randomFishType">🎲 Random</button>
             </div>
             <div class="max-md:h-24 max-md:whitespace-nowrap overflow-x-auto overflow-y-hidden">
                 <label v-for="(fishType, index) in fishTypes" class="fish-type-select" :key="index" :data-tooltip-target="getFishTooltipId(fishType)">
@@ -81,27 +86,48 @@ function getFishTooltipId(type) {
         </div>
         <div>
             <div class="flex gap-2">
-                <h3 class="text-white font-bold text-xl">Fish name</h3>
-                <button type="button" class="text-sm rounded bg-white p-1" @click="generateFishName">🎲 Random</button>
+                <label for="fish-name-input" class="block text-xl font-medium text-white">Fish name</label>
+                <button type="button" class="text-base rounded bg-white p-1" @click="generateFishName">🎲 Random</button>
             </div>
-            <input type="text" class="rounded text-2xl p-3" required v-model="fishNameModel">
+            <input type="text" id="fish-name-input" required v-model="fishNameModel" class="block w-full p-4 text-gray-900 border border-gray-300 rounded-lg bg-gray-50 text-2xl focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
         </div>
         <div>
-            <h4 class="text-white font-bold text-lg">Maximum lifetime <small>(min: {{ maximumLifetime.min }} secs -> max: {{ maximumLifetime.max }} secs)</small></h4>
-            <div class="flex flex-wrap gap-1">
-                <button type="button" class="text-sm rounded bg-white p-1" v-for="(lifecycle, index) in fishLifeCycles"
-                    :key="lifecycle.name" @click="setLifecycle(lifecycle)">{{ lifecycle.name }} {{ index ? "⭐".repeat(index) : '' }} ({{ lifecycle.miniumLifetime}}s)</button>
+            <label for="lifetime-input" class="block text-xl font-medium text-white">Maximum lifetime <small>(seconds)</small></label>
+            <div class="flex">
+                <button id="dropdown-lifetime-button" ref="dropdownLifetimeButton" class="shrink-0 z-10 inline-flex items-center py-2.5 px-4 font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 rounded-s-lg hover:bg-gray-200 focus:ring-4 focus:outline-none focus:ring-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-700 dark:text-white dark:border-gray-600" type="button">
+                    Presets <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg>
+                </button>
+                <div id="dropdown-lifetime" ref="dropdownLifetime" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-min dark:bg-gray-700">
+                    <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-lifetime-button">
+                        <li>
+                            <button type="button" v-for="(lifecycle, index) in fishLifeCycles" @click="setLifecycle(lifecycle)" class="inline-flex w-full px-4 py-2 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600 dark:hover:text-white" role="menuitem">
+                                <div class="inline-flex items-center gap-1">
+                                    <span>{{ lifecycle.name }}</span>
+                                    <span>{{ index ? "⭐".repeat(index) : '' }}</span>
+                                    <span>({{ lifecycle.miniumLifetime}}s)</span>
+                                </div>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="relative w-full">
+                    <input id="lifetime-input" type="number" required v-model="maximumLifetimeModel" :min="maximumLifetime.min" :max="maximumLifetime.max" class="block p-2.5 w-full z-20 text-gray-900 bg-gray-50 rounded-e-lg border-s-gray-50 border-s-2 border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-s-gray-700  dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-blue-500"></input>
+                </div>
             </div>
-            <input type="number" class="rounded text-xl p-2" required v-model="maximumLifetimeModel" :min="maximumLifetime.min" :max="maximumLifetime.max">
+            <div class="relative mb-10">
+                <input id="lifetime-range-input" type="range" v-model="maximumLifetimeModel" :min="maximumLifetime.min" :max="maximumLifetime.max" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                <span class="text-sm text-white dark:text-gray-400 absolute start-0 -bottom-6">Min ({{ maximumLifetime.min }})</span>
+                <span class="text-sm text-white dark:text-gray-400 absolute end-0 -bottom-6">Max ({{ maximumLifetime.max }})</span>
+            </div>
         </div>
         <div>
-            <button type="submit" class="text-2xl rounded bg-blue-500 p-5 text-white">Add fish ➕</button>
+            <button type="submit" class="text-xl rounded bg-blue-500 p-5 text-white">Add fish ➕</button>
         </div>
 
         <div id="tutorial" data-accordion="open">
             <h2 id="tutorial-heading-1">
                 <button type="button" class="flex items-center justify-between w-full p-3 font-medium text-sky-500 border border-sky-200 rounded-t-md focus:ring-2 focus:ring-sky-200 bg-white gap-2" data-accordion-target="#tutorial-body-1" aria-expanded="false" aria-controls="tutorial-body-1">
-                    <span>💡 First time? Check this tutorial below!</span>
+                    <span>💡 First time? Tutorial below!</span>
                     <svg data-accordion-icon class="w-3 h-3 rotate-180 shrink-0" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5 5 1 1 5"/>
                     </svg>

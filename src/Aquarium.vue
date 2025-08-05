@@ -75,7 +75,7 @@ const aquariumStyle = computed(() => {
             <div>
                 <div class="flex justify-between items-center">
                     <MagnifyingGlassMinusIcon class="w-7 h-7 bg-white rounded border-sky-500 border-2" @click="zoomAquarium(false)"></MagnifyingGlassMinusIcon>
-                    <label for="fish-zoom" class="block text-sm font-medium text-white text">Fish zoom</label>
+                    <label for="fish-zoom" class="block text-sm font-medium text-white text-shadow-md text-shadow-sky-500">Fish zoom</label>
                     <MagnifyingGlassPlusIcon class="w-7 h-7 bg-white rounded border-sky-500 border-2" @click="zoomAquarium(true)"></MagnifyingGlassPlusIcon>
                 </div>
                 <input id="fish-zoom" type="range" v-model="zoom" :min="zoomMin" :max="zoomMax" :step="zoomStep" class="w-full h-1 md:h-2 range-sm bg-gray-200 border-2 border-sky-500 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
