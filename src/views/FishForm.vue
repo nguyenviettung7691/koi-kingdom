@@ -121,7 +121,7 @@ function getFishTooltipId(type) {
             </div>
         </div>
         <div>
-            <button type="submit" class="text-xl rounded bg-blue-500 p-5 text-white">Add fish ➕</button>
+            <button type="submit" class="text-2xl rounded bg-blue-500 p-5 text-white">Add fish ➕</button>
         </div>
 
         <div id="tutorial" data-accordion="open">

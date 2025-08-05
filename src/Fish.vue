@@ -191,6 +191,8 @@ function popupFish(){
     }, 1000);
 }
 
+defineExpose({ tapFish })
+
 </script>
 
 <template>

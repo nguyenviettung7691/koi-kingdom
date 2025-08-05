@@ -56,7 +56,7 @@ const props = defineProps({
             can't feed the fish beyond its maximum lifetime.
             You have a food can (which you can check by clicking on the food can 🥫 in the lower left of the aquarium) that contains a finite number of fish feed 🍥. Every <span class="underline">{{ feedConfig.replenishInterval / (60
             * 60 * 1000) }}</span> hours since the last time you feed <ClockIcon class="w-3 h-3 inline-block text-blue-600" />
-            you will get <span class="underline">{{ feedConfig.replenishAmount }}</span> fish feed.</div>
+            you will get <span class="underline">{{ feedConfig.replenishAmount }}</span> fish feed. In the food can you can feed multiple times to random fishes.</div>
         <div>🐟 The fish <img class="w-10 inline-block" src="/fish/blue.png"></img> will display its information including: name <div class="inline-block rounded text-md p-1 bg-gray-200">Nemo</div>, remaining lifetime (as healthbar <div class="inline-block bg-lime-400 w-6 h-2"></div>), lifecycle stage
             (as stars ⭐), and maximum lifetime (as number of seconds <div class="inline-block bg-lime-400 w-16 h-4 font-bold text-sm text-right">200000</div>).</div>
         <div>🐡 If the fish died, click on it <img class="w-10 inline-block bg-black" src="/dead.png"></img> to remove from the aquarium.
