@@ -14,28 +14,23 @@
   "dependencies": {
     "@heroicons/vue": "^2.2.0",
     "@tailwindcss/typography": "^0.5.16",
+    "@vitejs/plugin-vue": "^6.0.6",
     "@vueuse/core": "^10.11.1",
     "flowbite": "^1.8.1",
+    "vite": "^8.0.11",
     "vue": "^3.3.4"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.12.0",
-    "@vitejs/plugin-vue": "^4.6.2",
     "@vue/eslint-config-prettier": "^8.0.0",
     "autoprefixer": "^10.4.21",
     "eslint": "^8.57.1",
     "eslint-plugin-vue": "^9.33.0",
     "postcss": "^8.5.6",
     "prettier": "^3.6.2",
-    "tailwindcss": "^3.4.17",
-    "vite": "^7.3.1"
+    "tailwindcss": "^3.4.17"
   },
   "engines": {
     "node": ">=18"
-  },
-  "overrides": {
-    "lodash": "4.18.0",
-    "picomatch@^2": "2.3.2",
-    "picomatch@^4": "4.0.4"
   }
 }
