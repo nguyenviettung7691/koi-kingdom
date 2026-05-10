@@ -162,7 +162,7 @@ function getFishTooltipId(type) {
                             </li>
                             <li>* The lower right of aquarium is where you can zoom out/in <MagnifyingGlassMinusIcon class="w-7 h-7 inline-block bg-white text-black rounded border-sky-500 border-2"></MagnifyingGlassMinusIcon> <MagnifyingGlassPlusIcon class="w-7 h-7 inline-block bg-white text-black rounded border-sky-500 border-2"></MagnifyingGlassPlusIcon> the fishes,
                                     toggle ↔️ the size of the left panel, as well as reset ❌ all of the aquarium state (destructive action!)</li>
-                            <li>* For more details on how to continue playing, check out the <a href="/#/guide" class="text-sky-600 hover:underline">Playing Guide</a>.</li>
+                            <li>* For more details on how to continue playing, check out the <a href="#/guide" class="text-sky-600 hover:underline">Playing Guide</a>.</li>
                         </ul>
                     </p>
                 </div>

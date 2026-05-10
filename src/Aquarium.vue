@@ -83,7 +83,7 @@ function zoomAquarium(zoomIn){
 
 const aquariumStyle = computed(() => {
     return {
-        backgroundImage: 'url(/aquarium-' + props.aquariumSelect + '.jpg)',
+        backgroundImage: `url(${import.meta.env.BASE_URL}aquarium-${props.aquariumSelect}.jpg)`,
     }
 })
 

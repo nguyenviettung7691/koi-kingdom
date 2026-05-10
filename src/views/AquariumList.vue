@@ -10,6 +10,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['unlockAquarium', 'selectAquarium']);
+const baseUrl = import.meta.env.BASE_URL;
 
 function getUnlockStatus(aquarium){
     return props.aquariumUnlocks.includes(aquarium.name);
@@ -75,7 +76,7 @@ function selectAquarium(aquarium){
         <div class="flex flex-wrap gap-5">
             <div v-for="aquarium in props.aquariumConfig" :key="aquarium.name" :class="getClass(aquarium)">
                 <button @click="selectAquarium(aquarium)" :disabled="!getUnlockStatus(aquarium)" type="button">
-                    <img class="rounded-t-lg" :src="`/aquarium-${aquarium.name}.jpg`" :alt="aquarium.name" />
+                    <img class="rounded-t-lg" :src="`${baseUrl}aquarium-${aquarium.name}.jpg`" :alt="aquarium.name" />
                 </button>
                 <div class="px-5 py-2">
                     <button @click="selectAquarium(aquarium)" :disabled="!getUnlockStatus(aquarium)" class="flex items-center" type="button">

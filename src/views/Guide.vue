@@ -6,6 +6,7 @@ const props = defineProps({
     maximumLifetime: Object,
     feedConfig: Object
 });
+const baseUrl = import.meta.env.BASE_URL;
 
 </script>
 <template>
@@ -37,7 +38,7 @@ const props = defineProps({
                     <tbody>
                         <tr v-for="(lc, index) in fishLifeCycles" :key="lc.name" class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200">
                             <td scope="row" class="px-6 py-4 font-medium text-center text-gray-900 whitespace-nowrap dark:text-white">
-                                <img class="w-10 inline-block" src="/fish/blue.png" :style="{transform: `scale(${lc.size})`}"></img>
+                                <img class="w-10 inline-block" :src="`${baseUrl}fish/blue.png`" :style="{transform: `scale(${lc.size})`}"></img>
                                 <div>{{ lc.name }}</div>
                             </td>
                             <td class="px-6 py-4">
@@ -57,19 +58,19 @@ const props = defineProps({
             You have a food can (which you can check by clicking on the food can 🥫 in the lower left of the aquarium) that contains a finite number of fish feed 🍥. Every <span class="underline">{{ feedConfig.replenishInterval / (60
             * 60 * 1000) }}</span> hours since the last time you feed <ClockIcon class="w-3 h-3 inline-block text-blue-600" />
             you will get <span class="underline">{{ feedConfig.replenishAmount }}</span> fish feed. In the food can you can feed multiple times to random fishes.</div>
-        <div>🐟 The fish <img class="w-10 inline-block" src="/fish/blue.png"></img> will display its information including: name <div class="inline-block rounded text-md p-1 bg-gray-200">Nemo</div>, remaining lifetime (as healthbar <div class="inline-block bg-lime-400 w-6 h-2"></div>), lifecycle stage
+        <div>🐟 The fish <img class="w-10 inline-block" :src="`${baseUrl}fish/blue.png`"></img> will display its information including: name <div class="inline-block rounded text-md p-1 bg-gray-200">Nemo</div>, remaining lifetime (as healthbar <div class="inline-block bg-lime-400 w-6 h-2"></div>), lifecycle stage
             (as stars ⭐), and maximum lifetime (as number of seconds <div class="inline-block bg-lime-400 w-16 h-4 font-bold text-sm text-right">200000</div>).</div>
-        <div>🐡 If the fish died, click on it <img class="w-10 inline-block bg-black" src="/dead.png"></img> to remove from the aquarium.
+        <div>🐡 If the fish died, click on it <img class="w-10 inline-block bg-black" :src="`${baseUrl}dead.png`"></img> to remove from the aquarium.
             The more dead fishes you have in the aquarium, the more chance other fishes will die because of
             contamination.</div>
         <div>🐡 You can reset the whole aquarium including all fishes, food can, aquarium list
             by clicking <div class="inline-block text-sm rounded bg-white p-1 text-red-500 border-sky-500 border-2">Reset aquarium ❌</div> in the lower right of the aquarium.</div>
-        <div>🐠 When the number of times a fish is fed reached a certain threshold, it may evolve into a random <img class="w-10 inline-block" src="/fish/gemstone/gemstone-pearl.png"></img> <i>gemstone</i>
+        <div>🐠 When the number of times a fish is fed reached a certain threshold, it may evolve into a random <img class="w-10 inline-block" :src="`${baseUrl}fish/gemstone/gemstone-pearl.png`"></img> <i>gemstone</i>
             fish!</div>
-        <div>🐠 The more spawning fishes you have in the aquarium, the more chance a random <img class="w-10 inline-block" src="/fish/element/element-fire.png"></img> <i>elemental</i> fish will join the
+        <div>🐠 The more spawning fishes you have in the aquarium, the more chance a random <img class="w-10 inline-block" :src="`${baseUrl}fish/element/element-fire.png`"></img> <i>elemental</i> fish will join the
             aquarium!</div>
         <div>🐠 Even better: the shorter lifetime those fishes have, the more chance you may have a random
-            <img class="w-10 inline-block" src="/fish/mythical/mythical-koinobori.png"></img> <strong>mythical</strong> fish join the aquarium!</div>
+            <img class="w-10 inline-block" :src="`${baseUrl}fish/mythical/mythical-koinobori.png`"></img> <strong>mythical</strong> fish join the aquarium!</div>
         <div>♒ You can unlock 🔓 new aquarium appearances by clearing the required conditions. You can check the details in the "Aquarium List" tab.</div>
         <div>♒ The lower right of aquarium is where you can zoom out/in <MagnifyingGlassMinusIcon class="w-7 h-7 inline-block bg-white text-black rounded border-sky-500 border-2"></MagnifyingGlassMinusIcon> <MagnifyingGlassPlusIcon class="w-7 h-7 inline-block bg-white text-black rounded border-sky-500 border-2"></MagnifyingGlassPlusIcon> the fishes,
             toggle ↔️ the size of the left panel.</div>

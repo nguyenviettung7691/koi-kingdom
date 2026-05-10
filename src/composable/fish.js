@@ -63,7 +63,8 @@ export function useFishLifecycle(fish, fishLifeCycles) {
  */
 export function useFishImagePath(fish){
   const fishImagePaths = ['gemstone', 'element', 'mythical'];
-  let path = '/fish';
+  const baseUrl = import.meta.env.BASE_URL;
+  let path = `${baseUrl}fish`;
     
     const indexOfHyphen = fish.type.indexOf('-');
     if (indexOfHyphen !== -1) {
@@ -74,5 +75,5 @@ export function useFishImagePath(fish){
     }
     path += '/' + fish.type;
 
-    return { path: fish.lifetime ? (fish.alive ? `${path}.png` : `/dead.png`) : `${path}.png` };
+    return { path: fish.lifetime ? (fish.alive ? `${path}.png` : `${baseUrl}dead.png`) : `${path}.png` };
 }

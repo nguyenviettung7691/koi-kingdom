@@ -27,6 +27,7 @@ const collapseAquarium = ref(false);
 const focusedFish = ref(-1);
 
 const { fishLifeCycles, maximumLifetime, feedConfig, rngConfig, aquariumConfig, debugMode } = config;
+const baseUrl = import.meta.env.BASE_URL;
 
 const routes = { ...{
     '/': FishForm,
@@ -219,7 +220,7 @@ function addElementFish() {
 
     toastList.value.push({
         id: 'element-fish',
-        message: `An elemental fish named ${fishName} with type <strong>${elementFishType}</strong> <img class="w-5 ml-1 inline-block" src="/fish/element/${elementFishType}.png" alt="${elementFishType}"> just joined your aquarium! Good job!.`,
+        message: `An elemental fish named ${fishName} with type <strong>${elementFishType}</strong> <img class="w-5 ml-1 inline-block" src="${baseUrl}fish/element/${elementFishType}.png" alt="${elementFishType}"> just joined your aquarium! Good job!.`,
         type: 'success'
     })
 }
@@ -262,7 +263,7 @@ function addMythicalFish() {
 
     toastList.value.push({
         id: 'mythical-fish',
-        message: `A mythical fish named ${fishName} with type <strong>${mythicalFishType}</strong> <img class="w-5 ml-1 inline-block" src="/fish/mythical/${mythicalFishType}.png" alt="${mythicalFishType}"> just joined your aquarium! Congratulations! And try to take care of it!`,
+        message: `A mythical fish named ${fishName} with type <strong>${mythicalFishType}</strong> <img class="w-5 ml-1 inline-block" src="${baseUrl}fish/mythical/${mythicalFishType}.png" alt="${mythicalFishType}"> just joined your aquarium! Congratulations! And try to take care of it!`,
         type: 'success'
     })
 }
@@ -436,7 +437,7 @@ function evolveFishHandler(id) {
 
     toastList.value.push({
         id: 'evolved-fish',
-        message: `The fish named ${fish.name} has been evolved into type <strong>${evolvedFishType}</strong> <img class="w-5 ml-1 inline-block" src="/fish/gemstone/${evolvedFishType}.png" alt="${evolvedFishType}">!`,
+        message: `The fish named ${fish.name} has been evolved into type <strong>${evolvedFishType}</strong> <img class="w-5 ml-1 inline-block" src="${baseUrl}fish/gemstone/${evolvedFishType}.png" alt="${evolvedFishType}">!`,
         type: 'info'
     })
 }

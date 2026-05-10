@@ -94,6 +94,22 @@ npm run build
 
 ---
 
+## 🌐 Deploy To GitHub Pages
+
+This repository includes a workflow at `.github/workflows/deploy.yml` that builds and deploys the app to GitHub Pages on pushes to the `main` branch.
+
+- Deployment target: `https://<your-username>.github.io/koi-kingdom/`
+- Vite base path is configured as `/koi-kingdom/` in `vite.config.js`
+
+To enable deployment:
+
+1. Push this repository to GitHub.
+2. In repository settings, open **Pages**.
+3. Set **Source** to **GitHub Actions**.
+4. Push to `main` (or run the workflow manually from the Actions tab).
+
+---
+
 ## 📜 License
 
 MIT License
